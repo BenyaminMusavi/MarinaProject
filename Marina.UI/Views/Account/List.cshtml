@@ -1,0 +1,85 @@
+﻿@model List<UserDto>
+
+@{
+    ViewBag.Title = "List";
+}
+
+<div>
+    @if (Model != null)
+    {
+        var model = Model.ToList();
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>@Html.DisplayName("Id")</th>
+                        <th>@Html.DisplayName("First Name")</th>
+                        <th>@Html.DisplayName("Last Name")</th>
+                        <th>@Html.DisplayName("Agency Code")</th>
+                        <th>@Html.DisplayName("Line")</th>
+                        <th>@Html.DisplayName("Province")</th>
+                        <th>@Html.DisplayName("Is Deleted")</th>
+                        <th>@Html.DisplayName("Is Active")</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Id</td>
+                            <td>@item.FirstName</td>
+                            <td>@item.LastName</td>
+                            <td>@item.AgencyCode</td>
+                            <td>@item.Line</td>
+                            <td>@item.Province</td>
+                            <td>
+                                <label class="switch">
+                                    @Html.CheckBoxFor(model => item.IsDeleted ,new { @class = "my-class", onclick = "myFunction()", type = "checkbox", @checked = item.IsDeleted  , @value = item.IsDeleted })
+                                    <label>@item.IsDeleted</label>
+                                    <span class="slider round"></span>
+                                </label>
+                            </td>
+                            <td>
+                                <label class="switch">
+                                    @*@Html.CheckBoxFor(model => item.IsActive ,new { @class = "my-class", onclick = "myFunction()", type = "checkbox", @checked = item.IsActive, @value = item.IsActive })*@
+                                    @Html.CheckBox("isActive" , item.IsActive ,new { @class = "my-class", onclick = "myFunction()", type = "checkbox", @checked = item.IsActive, @value = true })
+                                    <label>@item.IsActive</label>
+                                    <span class="slider round"></span>
+                                </label>
+                            </td>
+
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<script>
+    function toggleApi(element) {
+        if (element.checked) {
+            // فراخوانی API در صورتی که toggle فعال شده باشد
+        } else {
+            // فراخوانی API در صورتی که toggle غیرفعال شده باشد
+        }
+    }
+
+    const form = document.querySelector('isActive');
+    form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const checkbox = document.querySelector('input[type="checkbox"]');
+        const isChecked = checkbox.checked;
+        const requestBody = { isChecked };
+        fetch('https://example.com/api', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestBody)
+        })
+            .then(response => response.json())
+            .then(data => console.log(data))
+            .catch(error => console.error(error));
+    });
+
+
+</script>
