@@ -59,8 +59,8 @@
                                 @using (Html.BeginForm("Delete", "Account", new { @class = "inline-block", id = item.Id }, FormMethod.Post))
                                 {
                                     string confirm = "آیا برای حذف ضمیمه " + item.LastName + " مطمئن هستید؟";
-                                    <input type="submit" class="btn btn-danger btn-xs" value="حذف" onclick="return confirm('@confirm');" />
-                                }
+                                    <input type="submit" class="btn btn-danger btn-xs" value="Delete" onclick="return confirm('@confirm');" />
+                                } 
                             </td>
 
                             <td>

@@ -2,81 +2,91 @@
 
 @using (Html.BeginForm("Register", "Account", FormMethod.Post))
 {
-    <form id="registration-form" class="needs-validation" novalidate>
 
-        <div class="mb-3">
-            <input type="text" class="form-control" id="firstname" name="firstname" required placeholder="First Name">
-            <div class="invalid-feedback">
-                Please enter a valid firstname.
-            </div>
+    <div style="display:flex; width:100%; min-height:600px; justify-content:center; align-items:center;">
+
+        <div style="width:100%; max-width:600px; box-shadow:10px 10px 80px rgba(0,0,0,0.1); border-radius:18px; padding:24px;  display: flex; flex-direction: column;">
+
+
+            <span style="font-weight:700; font-size: 20px; margin-bottom: 20px;">Register</span>
+
+            <form id="registration-form" class="needs-validation" novalidate>
+
+                <div class="mb-3">
+                    <input type="text" class="form-control" id="firstname" name="firstname" required placeholder="First Name">
+                    <div class="invalid-feedback">
+                        Please enter a valid firstname.
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <input type="text" class="form-control" id="lastname" name="lastname" required placeholder="Last Name">
+                    <div class="invalid-feedback">
+                        Please enter a valid lastname.
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <input type="email" class="form-control" id="email" name="email" required placeholder="Email">
+                    <div class="invalid-feedback">
+                        Please enter a valid email address.
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <input type="text" class="form-control" id="username" name="username" required placeholder="User Name">
+                    <div class="invalid-feedback">
+                        Please enter a valid username.
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <input type="text" class="form-control" id="agencycode" name="agencycode" required placeholder="Agency Code">
+                    <div class="invalid-feedback">
+                        Please enter a valid agencycode.
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    @Html.DropDownListFor(m => m.Line, new SelectList(Enum.GetValues(typeof(LineType))), "Line", new { @class = "form-control"  , @placeholder = "Line", @style="height:40px;" , @id = "line" , @name = "line"})
+                    <div class="invalid-feedback">
+                        Please enter a valid line.
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    @Html.DropDownListFor(m => m.Province, new SelectList(Enum.GetValues(typeof(ProvinceType))), "Province", new { @class = "form-control"  , @placeholder = "Province", @style="height:40px;" , @id = "Province" , @name = "Province"})
+                    <div class="invalid-feedback">
+                        Please enter a valid line.
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <input type="password" class="form-control" id="password" name="password" required placeholder="Password">
+                    <div class="invalid-feedback">
+                        Please enter a valid password.
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <input type="password" class="form-control" id="confirmpassword" name="confirmpassword" required placeholder="Confirm Password">
+                    <div class="invalid-feedback">
+                        Please enter a valid confirmpassword.
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Register</button>
+
+                @if (ViewBag.IsSuccess)
+                {
+                    <div class="alert alert-success" role="alert">
+                        عملیات رجیستر شما با موفقیت انجام شد. لطفا تا زمان تایید صبر کنید.
+                    </div>
+                }
+
+            </form>
         </div>
-
-        <div class="mb-3">
-            <input type="text" class="form-control" id="lastname" name="lastname" required placeholder="Last Name">
-            <div class="invalid-feedback">
-                Please enter a valid lastname.
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <input type="email" class="form-control" id="email" name="email" required placeholder="Email">
-            <div class="invalid-feedback">
-                Please enter a valid email address.
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <input type="text" class="form-control" id="username" name="username" required placeholder="User Name">
-            <div class="invalid-feedback">
-                Please enter a valid username.
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <input type="text" class="form-control" id="agencycode" name="agencycode" required placeholder="Agency Code">
-            <div class="invalid-feedback">
-                Please enter a valid agencycode.
-            </div>
-        </div>
-
-        <div class="mb-3">
-            @Html.DropDownListFor(m => m.Line, new SelectList(Enum.GetValues(typeof(LineType))), "Line", new { @class = "form-control"  , @placeholder = "Line", @style="height:40px;" , @id = "line" , @name = "line"})
-            <div class="invalid-feedback">
-                Please enter a valid line.
-            </div>
-        </div>
-
-        <div class="mb-3">
-            @Html.DropDownListFor(m => m.Province, new SelectList(Enum.GetValues(typeof(ProvinceType))), "Province", new { @class = "form-control"  , @placeholder = "Province", @style="height:40px;" , @id = "Province" , @name = "Province"})
-            <div class="invalid-feedback">
-                Please enter a valid line.
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <input type="password" class="form-control" id="password" name="password" required placeholder="Password">
-            <div class="invalid-feedback">
-                Please enter a valid password.
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <input type="password" class="form-control" id="confirmpassword" name="confirmpassword" required placeholder="Confirm Password">
-            <div class="invalid-feedback">
-                Please enter a valid confirmpassword.
-            </div>
-        </div>
-
-        <button type="submit" class="btn btn-primary">Register</button>
-
-        @if (ViewBag.IsSuccess)
-        {
-            <div class="alert alert-success" role="alert">
-                عملیات رجیستر شما با موفقیت انجام شد. لطفا تا زمان تایید صبر کنید.
-            </div>
-        }
-
-    </form>
+    </div>
 }
 
 <script>

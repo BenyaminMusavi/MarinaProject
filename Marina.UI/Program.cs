@@ -14,7 +14,7 @@ builder.Services.AddDbContext<MarinaDbContext>(c => c.UseSqlServer(builder.Confi
 builder.Services.AddScoped<IUserManager, UserManager>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;

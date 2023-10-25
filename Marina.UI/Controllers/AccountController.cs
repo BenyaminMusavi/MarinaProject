@@ -18,7 +18,7 @@ public class AccountController : Controller
         _userRepository = userRepository;
     }
 
-    [Authorize(Policy = "AdminPolicy")]
+    //[Authorize(Policy = "admin")]
     public async Task<IActionResult> List()
     {
         var res = await _userRepository.GetAll();

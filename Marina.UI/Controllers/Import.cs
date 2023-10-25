@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.IdentityModel.Tokens.Jwt;
+using System.Runtime.CompilerServices;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
@@ -60,7 +61,7 @@ public class Import : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Index(IFormFile upload)
+    public IActionResult Index(IFormFile upload)
     {
         if (ModelState.IsValid)
         {
@@ -111,7 +112,7 @@ public class Import : Controller
                 }
                 reader.Close();
                 reader.Dispose();
-                await SaveToDataBase(dt);
+                SaveToDataBase(dt);
                 return View(dt);
             }
             else
@@ -136,7 +137,10 @@ public class Import : Controller
         {
             //var dataTable = UseSystemTextJson(str);
             var column = "";
-            var query = "use [MarinaDb]; CREATE TABLE DBO.BEN ( ";
+            HttpContextAccessor httpContextAccessor = new HttpContextAccessor();    
+            MyExtension myExtension = new MyExtension(httpContextAccessor);
+            var ssass = myExtension.SetDbName();
+            var query = $"use [MarinaDb2]; CREATE TABLE DBO.[{ssass}] ( ";
             foreach (var item in dataTable.Columns)
             {
                 column = item.ToString().Replace(" ", "");
@@ -144,10 +148,10 @@ public class Import : Controller
             }
             query = query.Substring(0, query.Length - 1);
             query += ");";
-            string connection = "Data Source=.;Initial Catalog=MarinaDb;integrated security=true;TrustServerCertificate=True";
+            string connection = "Data Source=.;Initial Catalog=MarinaDb2;integrated security=true;TrustServerCertificate=True";
             SqlConnection con = new SqlConnection(connection);
             SqlBulkCopy objBulk = new SqlBulkCopy(con);
-            objBulk.DestinationTableName = str;
+            objBulk.DestinationTableName = ssass;
             //objBulk.DestinationTableName = "BEN";
             con.Open();
             SqlCommand command = new SqlCommand(query, con);
