@@ -8,17 +8,18 @@ namespace Marina.UI.Providers.Repositories;
 
 public interface IUserRepository
 {
+    Task<bool> Delete(int id);
     Task<List<UserDto>> GetAll();
 
     //CookieUserItem Register(RegisterVm model);  
     bool Register(RegisterVm model);
+    Task<bool> SetStatus(int id);
     CookieUserItem Validate(LoginVm model);
 }
 
 public class UserRepository : IUserRepository
 {
     private MarinaDbContext _db;
-
     public UserRepository(MarinaDbContext db)
     {
         _db = db;
@@ -100,7 +101,34 @@ public class UserRepository : IUserRepository
             Province = x.Province,
             IsActive = x.IsActive,
             IsDeleted = x.IsDeleted
-        }).ToListAsync();
+        }).Where(x => !x.IsDeleted).ToListAsync();
+    }
+
+    public async Task<bool> Delete(int id)
+    {
+        var model = await _db.Users.FirstOrDefaultAsync(x => x.Id == id);
+        if (model != null)
+        {
+            model.IsDeleted = true;
+            await _db.SaveChangesAsync();
+            return true;
+        }
+        return false;
+    }
+
+    public async Task<bool> SetStatus(int id)
+    {
+        var model = await _db.Users.FirstOrDefaultAsync(x => x.Id == id);
+        if (model is null)
+            return false;
+
+        if (model.IsActive)
+            model.IsActive = false;
+        else
+            model.IsActive = true;
+
+        await _db.SaveChangesAsync();
+        return true;
     }
 
 }

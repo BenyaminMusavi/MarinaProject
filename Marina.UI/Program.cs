@@ -3,6 +3,7 @@ using Marina.UI.Providers;
 using Marina.UI.Providers.Repositories;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,14 +23,22 @@ builder.Services.AddAuthentication(options =>
 }).AddCookie(
     CookieAuthenticationDefaults.AuthenticationScheme, (options) =>
     {
-    options.LoginPath = "/Account/Login";
-    options.LogoutPath = "/Account/Logout";
-});
+        options.LoginPath = "/Account/Login";
+        options.LogoutPath = "/Account/Logout";
+    });
 
 builder.Services.Configure<CookiePolicyOptions>(options =>
 {
     options.CheckConsentNeeded = context => true;
     options.MinimumSameSitePolicy = SameSiteMode.None;
+});
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminPolicy", policy =>
+    {
+        policy.RequireRole("admin");
+    });
 });
 
 builder.Services.AddControllersWithViews();

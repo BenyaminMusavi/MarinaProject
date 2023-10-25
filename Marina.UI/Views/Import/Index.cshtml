@@ -1,9 +1,11 @@
-﻿@*@{
-    ViewData["Title"] = "Home Page";
+﻿@{
+    ViewData["Title"] = "Import";
 }
 
 @model System.Data.DataTable
 @using System.Data
+@using Newtonsoft.Json;
+
 
 <script src="~/lib/jquery/dist/jquery.js"></script>
 
@@ -22,7 +24,7 @@
                     });
                     $(this).find('input').css("cursor", "pointer");
                     $(this).find('input').mousedown(function () {
-                     $(this).parents(".input-file").prev().click();
+                        $(this).parents(".input-file").prev().click();
                     });
                     return element;
                 }
@@ -41,8 +43,13 @@
 
 </script>
 
-
-@using (Html.BeginForm("Index", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
+@*@using (Html.BeginForm("SaveToDataBase", "Import", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+<div class="form-group">
+    <button type="submit" value="upload" class="btn btn-default">Save</button>
+</div>
+}*@
+@using (Html.BeginForm("Index", "Import", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
     <div>
         <h2>Browse file for uploading</h2>
@@ -55,9 +62,17 @@
             </div>
         </div>
 
-        <div class="form-group">
+     @*   <div class="form-group">
             <input type="submit" value="upload" class="btn btn-default" />
+        </div>*@
+        <div class="form-group">
+            <button type="submit" value="upload" class="btn btn-defualt">Upload</button>
+            @*<input type="submit" value="upload" class="btn btn-default" />*@
         </div>
+     
+        <br />
+
+
         <div class="alert alert-danger">
             @Html.ValidationSummary()
         </div>
@@ -91,4 +106,4 @@
             </div>
         }
     </div>
-}*@
+}

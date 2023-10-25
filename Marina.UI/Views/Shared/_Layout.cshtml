@@ -15,7 +15,7 @@
             <div class="container">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">CookieReaders</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse"
-                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
@@ -25,41 +25,51 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home"
-                                asp-action="Privacy">Privacy</a>
+                               asp-action="Privacy">Privacy</a>
                         </li>
                         @if (User.Identity.IsAuthenticated)
                         {
-                            @if (@User.Claims.Any(x => x.Type == System.Security.Claims.ClaimTypes.Name))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-controller="Account" asp-action="Profile">
-                                        @User.Claims.FirstOrDefault(x => x.Type == System.Security.Claims.ClaimTypes.Name).Value
-                                    </a>
-                                </li>
-                            }
+                            @*@if (@User.Claims.Any(x => x.Type == System.Security.Claims.ClaimTypes.Name))
+                        {
+                        <li class="nav-item">
+                        <a class="nav-link text-dark" asp-controller="Account" asp-action="Profile">
+                        @User.Claims.FirstOrDefault(x => x.Type == System.Security.Claims.ClaimTypes.Name).Value
+                        </a>
+                        </li>
+                        }*@
+
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Account"
-                                asp-action="Logout">Logout</a>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Import"
+                               asp-action="Index">Import</a>
                             </li>
 
-                     
+                           @* @if (@User.Claims.Any(x => x.Type == System.Security.Claims.ClaimTypes.Name))
+                            {*@
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Account"
+                               asp-action="List">Panel Admin</a>
+                                </li>
+                            @*}*@
+
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Account"
+                               asp-action="Logout">Logout</a>
+                            </li>
+
                         }
                         else
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Account"
-                                asp-action="Login">Login</a>
+                               asp-action="Login">Login</a>
                             </li>
 
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Account"
-                                   asp-action="Register">Register</a>
+                               asp-action="Register">Register</a>
                             </li>
 
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Import"
-                               asp-action="ExcelFileReader">Import</a>
-                            </li>
+
                         }
                     </ul>
                 </div>
@@ -74,10 +84,10 @@
 
     <partial name="~/Views/_CookieConsent.cshtml" />
 
-@*    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2021 - CookieReaders - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
+    @*    <footer class="border-top footer text-muted">
+    <div class="container">
+    &copy; 2021 - CookieReaders - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    </div>
     </footer>*@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

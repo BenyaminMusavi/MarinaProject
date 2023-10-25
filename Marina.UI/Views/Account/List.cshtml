@@ -18,8 +18,9 @@
                         <th>@Html.DisplayName("Agency Code")</th>
                         <th>@Html.DisplayName("Line")</th>
                         <th>@Html.DisplayName("Province")</th>
-                        <th>@Html.DisplayName("Is Deleted")</th>
-                        <th>@Html.DisplayName("Is Active")</th>
+                        <th>@Html.DisplayName("Status")</th>
+                        <th style="text-align:right">@Html.DisplayName("Action")</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -33,21 +34,57 @@
                             <td>@item.Line</td>
                             <td>@item.Province</td>
                             <td>
-                                <label class="switch">
-                                    @Html.CheckBoxFor(model => item.IsDeleted ,new { @class = "my-class", onclick = "myFunction()", type = "checkbox", @checked = item.IsDeleted  , @value = item.IsDeleted })
-                                    <label>@item.IsDeleted</label>
-                                    <span class="slider round"></span>
-                                </label>
+                                @if (item.IsActive)
+                                    @Html.DisplayName("فعال")
+                                else
+                                {
+                                    @Html.DisplayName("غیر فعال")
+                                }
                             </td>
+                            @*<td>
+                    <label class="switch">
+                    @Html.CheckBoxFor(model => item.IsDeleted ,new { @class = "my-class", onclick = "myFunction()", type = "checkbox", @checked = item.IsDeleted  , @value = item.IsDeleted })
+                    <label>@item.IsDeleted</label>
+                    <span class="slider round"></span>
+                    </label>
+                    </td>
+                    <td>
+
+                    <label class="switch">
+                    <input type="checkbox" checked="@item.IsActive" name="isactive" />
+                    <span class="slider round"></span>
+                    </label>
+                    </td>*@
                             <td>
-                                <label class="switch">
-                                    @*@Html.CheckBoxFor(model => item.IsActive ,new { @class = "my-class", onclick = "myFunction()", type = "checkbox", @checked = item.IsActive, @value = item.IsActive })*@
-                                    @Html.CheckBox("isActive" , item.IsActive ,new { @class = "my-class", onclick = "myFunction()", type = "checkbox", @checked = item.IsActive, @value = true })
-                                    <label>@item.IsActive</label>
-                                    <span class="slider round"></span>
-                                </label>
+                                @using (Html.BeginForm("Delete", "Account", new { @class = "inline-block", id = item.Id }, FormMethod.Post))
+                                {
+                                    string confirm = "آیا برای حذف ضمیمه " + item.LastName + " مطمئن هستید؟";
+                                    <input type="submit" class="btn btn-danger btn-xs" value="حذف" onclick="return confirm('@confirm');" />
+                                }
                             </td>
 
+                            <td>
+                                @using (Html.BeginForm("Active", "Account", new { id = @item.Id }, FormMethod.Post))
+                                {
+                                    string confirm = "آیا برای تغییر وضعیت " + item.LastName + " مطمئن هستید؟";
+                                    <input type="submit" class="btn btn-danger btn-xs" value="تغییر وضعیت" onclick="return confirm('@confirm');" />
+                                }
+
+
+                                @*@Html.ActionLink("وضعیت", $"Active", new { Id = item.Id })*
+
+
+                        @*  @using (Html.BeginForm())
+                        {
+                        @Html.CheckBox("checkboxName", item.IsActive)
+                        @Html.ActionLink("Active", "Account", new { id = item.Id }, null)
+                        }*@
+
+                                @*   <input type="hidden" id="checkboxValue" name="checkboxValue" value="false" />
+                        <input type="checkbox" id="checkboxToggle" name="checkboxToggle" onclick="document.getElementById('checkboxValue').value=this.checked;" />
+                        <a href="@Url.Action("Active", "Account", new { checkboxParam = item.Id })">Link Text</a>*@
+
+                            </td>
                         </tr>
                     }
                 </tbody>
@@ -55,31 +92,3 @@
         </div>
     }
 </div>
-
-<script>
-    function toggleApi(element) {
-        if (element.checked) {
-            // فراخوانی API در صورتی که toggle فعال شده باشد
-        } else {
-            // فراخوانی API در صورتی که toggle غیرفعال شده باشد
-        }
-    }
-
-    const form = document.querySelector('isActive');
-    form.addEventListener('submit', (event) => {
-        event.preventDefault();
-        const checkbox = document.querySelector('input[type="checkbox"]');
-        const isChecked = checkbox.checked;
-        const requestBody = { isChecked };
-        fetch('https://example.com/api', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(requestBody)
-        })
-            .then(response => response.json())
-            .then(data => console.log(data))
-            .catch(error => console.error(error));
-    });
-
-
-</script>
