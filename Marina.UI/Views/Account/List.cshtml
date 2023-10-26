@@ -28,11 +28,11 @@
                     {
                         <tr>
                             <td>@item.Id</td>
-                            <td>@item.FirstName</td>
-                            <td>@item.LastName</td>
-                            <td>@item.AgencyCode</td>
-                            <td>@item.Line</td>
-                            <td>@item.Province</td>
+                            <td>@item.DistributorName</td>
+                            <td>@item.RSMId</td>
+                            <td>@item.RegionId</td>
+                            <td>@item.LineId</td>
+                            <td>@item.ProvinceId</td>
                             <td>
                                 @if (item.IsActive)
                                     @Html.DisplayName("فعال")
@@ -58,7 +58,7 @@
                             <td>
                                 @using (Html.BeginForm("Delete", "Account", new { @class = "inline-block", id = item.Id }, FormMethod.Post))
                                 {
-                                    string confirm = "آیا برای حذف ضمیمه " + item.LastName + " مطمئن هستید؟";
+                                    string confirm = "آیا برای حذف ضمیمه " + item.DistributorName + " مطمئن هستید؟";
                                     <input type="submit" class="btn btn-danger btn-xs" value="Delete" onclick="return confirm('@confirm');" />
                                 } 
                             </td>
@@ -66,7 +66,7 @@
                             <td>
                                 @using (Html.BeginForm("Active", "Account", new { id = @item.Id }, FormMethod.Post))
                                 {
-                                    string confirm = "آیا برای تغییر وضعیت " + item.LastName + " مطمئن هستید؟";
+                                    string confirm = "آیا برای تغییر وضعیت " + item.DistributorName + " مطمئن هستید؟";
                                     <input type="submit" class="btn btn-danger btn-xs" value="تغییر وضعیت" onclick="return confirm('@confirm');" />
                                 }
 

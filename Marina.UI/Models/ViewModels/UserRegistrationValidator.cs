@@ -7,12 +7,12 @@ public partial class UserRegistrationValidator : AbstractValidator<RegisterVm>
 {
     public UserRegistrationValidator()
     {
-        RuleFor(x => x.FirstName).NotEmpty();
-        RuleFor(x => x.LastName).NotEmpty();
+        //RuleFor(x => x.FirstName).NotEmpty();
+        //RuleFor(x => x.LastName).NotEmpty();
 
-        RuleFor(x => x.Email).NotEmpty().EmailAddress()
-             .When(_ => !string.IsNullOrEmpty(_.Email) && EmailRegex().IsMatch(_.Email), ApplyConditionTo.CurrentValidator)
-             .WithMessage("Email Is Already Exist");
+        //RuleFor(x => x.Email).NotEmpty().EmailAddress()
+        //     .When(_ => !string.IsNullOrEmpty(_.Email) && EmailRegex().IsMatch(_.Email), ApplyConditionTo.CurrentValidator)
+        //     .WithMessage("Email Is Already Exist");
 
         RuleFor(x => x.Password).NotEmpty().WithMessage("Your password cannot be empty")
                 .MinimumLength(6).WithMessage("Your password length must be at least 6.")
@@ -26,6 +26,6 @@ public partial class UserRegistrationValidator : AbstractValidator<RegisterVm>
 
     }
 
-    [GeneratedRegex("\\A(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)\\Z", RegexOptions.IgnoreCase, "en-US")]
-    private static partial Regex EmailRegex();
+    //[GeneratedRegex("\\A(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)\\Z", RegexOptions.IgnoreCase, "en-US")]
+    //private static partial Regex EmailRegex();
 }

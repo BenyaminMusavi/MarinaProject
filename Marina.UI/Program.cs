@@ -14,6 +14,12 @@ builder.Services.AddDbContext<MarinaDbContext>(c => c.UseSqlServer(builder.Confi
 builder.Services.AddScoped<IUserManager, UserManager>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IDistributorRepository, DistributorRepository>();
+builder.Services.AddScoped<ILineRepository, LineRepository>();
+builder.Services.AddScoped<IProvinceRepository, ProvinceRepository>();
+builder.Services.AddScoped<IRegionRepository, RegionRepository>();
+builder.Services.AddScoped<IRSMRepository, RSMRepository>();
+
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthentication(options =>
 {
@@ -33,13 +39,13 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
     options.MinimumSameSitePolicy = SameSiteMode.None;
 });
 
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("AdminPolicy", policy =>
-    {
-        policy.RequireRole("admin");
-    });
-});
+//builder.Services.AddAuthorization(options =>
+//{
+//    options.AddPolicy("AdminPolicy", policy =>
+//    {
+//        policy.RequireRole("admin");
+//    });
+//});
 
 builder.Services.AddControllersWithViews();
 

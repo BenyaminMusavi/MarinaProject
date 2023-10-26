@@ -13,7 +13,10 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Logo</a>
+                @*<a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Logo</a>*@
+                <div class="navbar-brand">
+                    <img width="40" ; height="40" ; style="max-width:40px; max-height:40px;" alt="logo" src="~/images/marina.png" />
+                </div>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse"
                         aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -34,17 +37,17 @@
 
                                 @if (User.Identity.IsAuthenticated)
                                 {
-                            <div class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Import"
-                               asp-action="Index">Import</a>
-                            </div>
+                                    <div class="nav-item">
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="Import"
+                                       asp-action="Index">Import</a>
+                                    </div>
 
                                     @* @if (@User.Claims.Any(x => x.Type == System.Security.Claims.ClaimTypes.Name))
-                        {*@
-                            <div class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Account"
-                               asp-action="List">Panel Admin</a>
-                            </div>
+                                {*@
+                                    <div class="nav-item">
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="Account"
+                                       asp-action="List">Panel Admin</a>
+                                    </div>
                                     @*}*@
                                 }
                             </div>
@@ -54,31 +57,31 @@
                             @if (User.Identity.IsAuthenticated)
                             {
                                 @*@if (@User.Claims.Any(x => x.Type == System.Security.Claims.ClaimTypes.Name))
-                {
-                <li class="nav-item">
-                <a class="nav-link text-dark" asp-controller="Account" asp-action="Profile">
-                @User.Claims.FirstOrDefault(x => x.Type == System.Security.Claims.ClaimTypes.Name).Value
-                </a>
-                </li>
-                }*@
+                            {
+                            <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Account" asp-action="Profile">
+                            @User.Claims.FirstOrDefault(x => x.Type == System.Security.Claims.ClaimTypes.Name).Value
+                            </a>
+                            </li>
+                            }*@
 
-                    <div class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Account"
-                       asp-action="Logout">Logout</a>
-                    </div>
+                                <div class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Account"
+                                   asp-action="Logout">Logout</a>
+                                </div>
 
                             }
                             else
                             {
-                    <div class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Account"
-                       asp-action="Login">Login</a>
-                    </div>
+                                <div class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Account"
+                                   asp-action="Login">Login</a>
+                                </div>
 
-                    <div class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Account"
-                       asp-action="Register">Register</a>
-                    </div>
+                                <div class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Account"
+                                   asp-action="Register">Register</a>
+                                </div>
 
 
                             }
