@@ -53,6 +53,7 @@ public class AccountController : Controller
     [HttpPost]
     public async Task<IActionResult> Login(LoginVm model)
     {
+
         if (!ModelState.IsValid)
             return View(model);
 
@@ -60,7 +61,7 @@ public class AccountController : Controller
 
         if (user == null) return View(model);
 
-        if (user.UserName == "admin")
+        if (user.UserId == 1)
         {
             var identity = (ClaimsIdentity)User.Identity;
             identity.AddClaim(new Claim(ClaimTypes.Role, "admin"));

@@ -28,16 +28,16 @@ public class UserRepository : IUserRepository
 
     public CookieUserItem Validate(LoginVm model)
     {
-        var userRecords = _db.Users.Where(x => x.UserName == model.Username && x.IsActive);
+        var userRecords = _db.Users.Where(x => x.UserName == model.Username && x.IsActive).Include(x=>x.Distributor).Include(x=>x.Line).Include(x=>x.Province);
 
         var results = userRecords.AsEnumerable()
         .Where(m => m.PasswordHash == Hasher.GenerateHash(model.Password, m.Salt))
         .Select(m => new CookieUserItem
         {
-            UserId = m.Id,
-            //EmailAddress = m.EmailAddress,
-            UserName = m.UserName,
-            CreatedUtc = m.CreateDate
+            DistributorCode = m.Distributor.Code,
+            Line = m.Line.Name,
+            Province = m.Province.Name,
+            CreatedUtc = m.CreateDate,
         });
 
         return results.FirstOrDefault();
@@ -65,6 +65,8 @@ public class UserRepository : IUserRepository
     {
         var currentUser = await _db.Users.SingleOrDefaultAsync(x => x.PhoneNumber == model.PhoneNumber);
         if (currentUser is null)
+            return false;
+        if (!currentUser.IsActive)
             return false;
         if (currentUser.UserName == model.UserName || currentUser.DistributorName == model.DistributorName)
             return false;

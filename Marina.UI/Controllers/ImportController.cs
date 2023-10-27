@@ -1,24 +1,30 @@
-﻿using System;
-using System.Data;
-using System.IdentityModel.Tokens.Jwt;
-using System.Runtime.CompilerServices;
+﻿using System.Data;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
-using System.Web;
 using ExcelDataReader;
-using Marina.UI.Models;
-using Marina.UI.Models.Entities;
-using Microsoft.AspNetCore.Identity;
+using Marina.UI.Providers.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 
 namespace Marina.UI.Controllers;
 
-public class Import : Controller
+public class ImportController : Controller
 {
-       private static string str = "";
+    private readonly IConfiguration _configuration;
+    private static string tblName = "";
+    private bool IsTabled;
+    private IImportRepository _ImportRepository;
+    public ImportController(IConfiguration configuration, IImportRepository importRepository)
+    {
+        _configuration = configuration;
+        SetNameDb();
+        _ImportRepository = importRepository;
 
+
+        _ImportRepository.CheckTable(tblName);
+    }
     //public Import()
     //{
     //    var identity = (ClaimsIdentity)User.Identity;
@@ -55,11 +61,6 @@ public class Import : Controller
         return View();
     }
 
-    public IActionResult ExcelFileReader()
-    {
-        return View();
-    }
-
     [HttpPost]
     public IActionResult Index(IFormFile upload)
     {
@@ -84,9 +85,9 @@ public class Import : Controller
                     return View();
                 }
 
-                DataTable dt = new DataTable();
+                DataTable dt = new();
                 DataRow row;
-                DataTable dt_ = new DataTable();
+                DataTable dt_ = new();
 
                 try
                 {
@@ -112,7 +113,8 @@ public class Import : Controller
                 }
                 reader.Close();
                 reader.Dispose();
-                SaveToDataBase(dt);
+                //SaveToDataBase(dt);
+
                 return View(dt);
             }
             else
@@ -123,38 +125,26 @@ public class Import : Controller
         }
         return View();
     }
-    //public ActionResult Upload(FormCollection formCollection)
-    //{
-    //    if(Request != null)
-    //    {
-    //        HttpPostedFileBase
-    //    }
-    //}
 
-    private static async Task<bool> SaveToDataBase(DataTable dataTable)
+    private async Task<bool> SaveToDataBase(DataTable dataTable)
     {
         try
         {
-            //var dataTable = UseSystemTextJson(str);
-            var column = "";
-            HttpContextAccessor httpContextAccessor = new HttpContextAccessor();    
-            MyExtension myExtension = new MyExtension(httpContextAccessor);
-            var ssass = myExtension.SetDbName();
-            var query = $"use [MarinaDb2]; CREATE TABLE DBO.[{ssass}] ( ";
-            foreach (var item in dataTable.Columns)
+            var dbName = SetNameDb();
+
+            string query = CreateData(dataTable, dbName);
+
+            string connectionString = _configuration.GetConnectionString("MarinaConnectionString");
+
+            SqlConnection con = new(connectionString);
+            SqlBulkCopy objBulk = new(con)
             {
-                column = item.ToString().Replace(" ", "");
-                query += $"{column} nvarchar(100) NULL,";
-            }
-            query = query.Substring(0, query.Length - 1);
-            query += ");";
-            string connection = "Data Source=.;Initial Catalog=MarinaDb2;integrated security=true;TrustServerCertificate=True";
-            SqlConnection con = new SqlConnection(connection);
-            SqlBulkCopy objBulk = new SqlBulkCopy(con);
-            objBulk.DestinationTableName = ssass;
-            //objBulk.DestinationTableName = "BEN";
+                DestinationTableName = dbName
+            };
+
             con.Open();
-            SqlCommand command = new SqlCommand(query, con);
+
+            SqlCommand command = new(query, con);
             command.ExecuteNonQuery();
             objBulk.WriteToServer(dataTable);
             con.Close();
@@ -163,7 +153,22 @@ public class Import : Controller
         {
             throw;
         }
+
         return true;
+    }
+
+    private static string CreateData(DataTable dataTable, string dbName)
+    {
+        var column = "";
+        var query = $"use [MarinaDb2]; CREATE TABLE DBO.[{dbName}] ( ";
+        foreach (var item in dataTable.Columns)
+        {
+            column = item.ToString().Replace(" ", "");
+            query += $"{column} nvarchar(100) NULL,";
+        }
+        query = query.Substring(0, query.Length - 1);
+        query += ");";
+        return query;
     }
 
     public static System.Data.DataTable? UseSystemTextJson(string sampleJson)
@@ -207,32 +212,73 @@ public class Import : Controller
         return dataTable;
     }
 
-    private string SetDbName()
-    {
-        ClaimsPrincipal currentUser = this.User;
-        ClaimsIdentity currentIdentity = currentUser.Identity as ClaimsIdentity;
-        string firstName = currentIdentity.Name;
-        string lastName = currentIdentity.FindFirst("LastName")?.Value;
-        string str = "";
-        var date = DateTime.Now.ToString("yyyy/MM/dd/HH:mm");
-        var dateStr = date.Replace("/", "").Replace(":", "");
-        //var firstName = user.Claims.FirstOrDefault(c => c.Type == "FirstName");
-        //var lastName = user.Claims.FirstOrDefault(c => c.Type == "LastName");
-        str = $"{dateStr}_{firstName}_{lastName}";
-        return str;
-
-    }
-
-    //public IActionResult MyAction()
+    //private static string SetDbName()
     //{
     //    ClaimsPrincipal currentUser = this.User;
     //    ClaimsIdentity currentIdentity = currentUser.Identity as ClaimsIdentity;
-    //    string username = currentIdentity.Name;
-
-    //    // Use the username in your code
-    //    // ...
-
-    //    return View();
+    //    string firstName = currentIdentity.Name;
+    //    string lastName = currentIdentity.FindFirst("LastName")?.Value;
+    //    string str = "";
+    //    var date = DateTime.Now.ToString("yyyy/MM/dd/HH:mm");
+    //    var dateStr = date.Replace("/", "").Replace(":", "");
+    //    //var firstName = user.Claims.FirstOrDefault(c => c.Type == "FirstName");
+    //    //var lastName = user.Claims.FirstOrDefault(c => c.Type == "LastName");
+    //    str = $"{dateStr}_{firstName}_{lastName}";
+    //    return str;
     //}
 
+    //public string MyAction()
+    //{
+    //    var DistributorCode = User.FindFirstValue("DistributorCode");
+    //    var Province = User.FindFirstValue("Province");
+    //    var Line = User.FindFirstValue("Line");
+    //    // ...
+    //    var str = $"{DistributorCode}_{Province}_{Line}";
+    //    return str;
+    //}
+    private string SetNameDb()
+    {
+        var httpContextAccessor = new HttpContextAccessor();
+        var province = httpContextAccessor.HttpContext?.User.FindFirstValue("Province");
+        var distributorCode = httpContextAccessor.HttpContext?.User.FindFirstValue("DistributorCode");
+        var line = httpContextAccessor.HttpContext?.User.FindFirstValue("Line");
+        tblName = $"{distributorCode}_{province}_{line}";
+        return tblName;
+    }
 }
+//    var roleClaim = HttpContext.User.FindFirst("role");
+//if (roleClaim != null)
+//{
+//    var role = roleClaim.Value;
+//    // Do something with the role
+//}
+//else
+//{
+//    // Handle the case where the user does not have the "role" claim
+//}
+
+//}
+
+
+
+
+//ClaimsPrincipal currentUser = this.User;
+//ClaimsIdentity currentIdentity = currentUser.Identity as ClaimsIdentity;
+//var a  = currentIdentity.FindFirst("Province")?.Value;
+
+//var Province = HttpContext.User.FindFirstValue("Province");
+//var DistributorCode = User.FindFirstValue("DistributorCode");
+//var Line = User.FindFirstValue("Line");
+
+
+//var httpContextAccessor = new HttpContextAccessor();
+//var roleClaim = httpContextAccessor.HttpContext?.User.FindFirst("role");
+//if (roleClaim != null)
+//{
+//    var role = roleClaim.Value;
+//    // Do something with the role
+//}
+//else
+//{
+//    // Handle the case where the user does not have the "role" claim
+//}

@@ -1,9 +1,3 @@
-using Microsoft.AspNetCore.Html;
-using Microsoft.AspNetCore.Mvc.Localization;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using System.ComponentModel.DataAnnotations;
-using System.Linq.Expressions;
-
 namespace Marina.UI.Models.ViewModels;
 
 public class RegisterVm //: LoginVm

@@ -25,6 +25,10 @@ public partial class User
     public long? UpdaterUserId { get; set; }
     public DateTime? UpdateTime { get; set; }
     #endregion
+
+    public virtual Distributor Distributor { get; set; }
+    public virtual Line Line { get; set; }
+    public virtual Province Province { get; set; }
 }
 
 public partial class Region

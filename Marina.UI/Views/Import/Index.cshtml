@@ -62,14 +62,14 @@
             </div>
         </div>
 
-     @*   <div class="form-group">
-            <input type="submit" value="upload" class="btn btn-default" />
-        </div>*@
+        @*   <div class="form-group">
+    <input type="submit" value="upload" class="btn btn-default" />
+    </div>*@
         <div class="form-group">
             <button type="submit" value="upload" class="btn btn-defualt">Upload</button>
             @*<input type="submit" value="upload" class="btn btn-default" />*@
         </div>
-     
+
         <br />
 
 
@@ -107,3 +107,172 @@
         }
     </div>
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@*@model System.Data.DataTable
+@using System.Data
+@{
+    ViewBag.Data = null;
+
+}
+
+@using (Html.BeginForm("Index", "Import", FormMethod.Post, new { enctype = "multipart/form-data", id = "upload-form" }))
+{
+   
+        <input class="custom-file-input" type="file" name="file" id="file-input" value="Upload">
+
+    <div class="form-group">
+        <input type="submit" value="Upload" class="btn btn-default" />
+    </div>
+
+ 
+}
+
+@if (ViewBag.Data is not null)
+{
+    <div class="table-wrapper">
+
+        <table>
+            <thead>
+                <tr>
+                    @foreach (DataColumn col in Model.Columns)
+                    {
+                        <th>@col.ColumnName</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (DataRow row in Model.Rows)
+                {
+                    <tr>
+                        @foreach (DataColumn col in Model.Columns)
+                        {
+                            <td>@row[col.ColumnName]</td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+
+    </div>
+}
+
+
+<style>
+    .custom-file-input::-webkit-file-upload-button {
+        visibility: hidden;
+    }
+
+    .custom-file-input::before {
+        content: 'Select some files';
+        display: inline-block;
+        background: linear-gradient(top, #f9f9f9, #e3e3e3);
+        border: 1px solid #999;
+        border-radius: 3px;
+        padding: 5px 8px;
+        outline: none;
+        white-space: nowrap;
+        -webkit-user-select: none;
+        cursor: pointer;
+        text-shadow: 1px 1px #fff;
+        font-weight: 700;
+        font-size: 10pt;
+    }
+
+    .custom-file-input:hover::before {
+        border-color: black;
+    }
+
+    .custom-file-input:active::before {
+        background: -webkit-linear-gradient(top, #e3e3e3, #f9f9f9);
+    }
+</style>
+
+@*<script>
+    document.getElementById("file-input").addEventListener("change", function() {
+        document.getElementById("upload-form").submit();
+    });
+</script>*@
+
+@*
+ 
+ 
+<script src="~/Scripts/jquery-1.10.2.js"></script>
+ 
+<script>
+    function bs_input_file() {
+        $(".input-file").before(
+            function () {
+                if (!$(this).prev().hasClass('input-ghost')) {
+                    var element = $("<input type='file' id='dataFile' name='upload' class='input-ghost' style='visibility:hidden; height:0'>");
+                    element.attr("name", $(this).attr("name"));
+                    element.change(function () {
+                        element.next(element).find('input').val((element.val()).split('\\').pop());
+                    });
+                    $(this).find("button.btn-choose").click(function () {
+                        element.click();
+                    });
+                    $(this).find("button.btn-reset").click(function () {
+                        element.val(null);
+                        $(this).parents(".input-file").find('input').val('');
+                    });
+                    $(this).find('input').css("cursor", "pointer");
+                    $(this).find('input').mousedown(function () {
+                        $(this).parents('.input-file').prev().click();
+                        return false;
+                    });
+                    return element;
+                }
+            }
+        );
+    }
+ 
+    function clear() {
+        var input = $("#dataFile").val('');
+    };
+    $(function () {
+        clear();
+        bs_input_file();
+    });
+</script>*@

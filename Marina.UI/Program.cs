@@ -19,6 +19,7 @@ builder.Services.AddScoped<ILineRepository, LineRepository>();
 builder.Services.AddScoped<IProvinceRepository, ProvinceRepository>();
 builder.Services.AddScoped<IRegionRepository, RegionRepository>();
 builder.Services.AddScoped<IRSMRepository, RSMRepository>();
+builder.Services.AddScoped<IImportRepository, ImportRepository>();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthentication(options =>

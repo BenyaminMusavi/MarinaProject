@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Marina.UI.Providers;
 
@@ -62,9 +63,12 @@ public class UserManager : IUserManager
         List<Claim> claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-            new Claim(ClaimTypes.Name, user.UserName),
-            new Claim(ClaimTypes.Email, user.EmailAddress)
+            //new Claim(ClaimTypes.Name, user.DistributorCode),
+            new Claim("DistributorCode" , user.DistributorCode),
+            new Claim("Line", user.Line),
+            new Claim("Province", user.Province),
         };
         return claims;
     }
+
 }
