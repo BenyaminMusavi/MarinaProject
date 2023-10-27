@@ -7,6 +7,7 @@ using Marina.UI.Providers.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Marina.UI.Controllers;
 
@@ -14,47 +15,19 @@ public class ImportController : Controller
 {
     private readonly IConfiguration _configuration;
     private static string tblName = "";
-    private bool IsTabled;
+    private string DESCId;
+    private string Date;
     private IImportRepository _ImportRepository;
     public ImportController(IConfiguration configuration, IImportRepository importRepository)
     {
         _configuration = configuration;
-        SetNameDb();
         _ImportRepository = importRepository;
 
 
-        _ImportRepository.CheckTable(tblName);
+        tblName = SetNameDb();
+        DESCId = _ImportRepository.CheckTable(tblName);
+        GetPersianDate();
     }
-    //public Import()
-    //{
-    //    var identity = (ClaimsIdentity)User.Identity;
-    //    IEnumerable<Claim> claims = identity.Claims;
-
-    //    var nameClaim = ((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.Name);
-    //    ClaimsPrincipal currentUser = this.User;
-    //    ClaimsIdentity currentIdentity = currentUser.Identity as ClaimsIdentity;
-    //    string firstName = currentIdentity.Name;
-    //    string lastName = currentIdentity.FindFirst("LastName")?.Value;
-    //    var date = DateTime.Now.ToString("yyyy/MM/dd/HH:mm");
-    //    var dateStr = date.Replace("/", "").Replace(":", "");
-    //    //var firstName = user.Claims.FirstOrDefault(c => c.Type == "FirstName");
-    //    //var lastName = user.Claims.FirstOrDefault(c => c.Type == "LastName");
-    //    str = $"{dateStr}_{firstName}_{lastName}";
-
-    //}
-    //public IActionResult MyAction()
-    //{
-    //    var jwtToken = "myJwtToken";
-    //    var token = new JwtSecurityTokenHandler().ReadJwtToken(jwtToken);
-    //    var claims = token.Claims;
-    //    var nameClaim = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name);
-    //    var name = nameClaim.Value;
-
-    //    // Use the name in your code
-    //    // ...
-
-    //    return View();
-    //}
 
     public IActionResult Index()
     {
@@ -70,7 +43,7 @@ public class ImportController : Controller
             {
                 Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
                 Stream stream = upload.OpenReadStream();
-                IExcelDataReader reader = null;
+                IExcelDataReader reader;
                 if (upload.FileName.EndsWith(".xls"))
                 {
                     reader = ExcelReaderFactory.CreateBinaryReader(stream);
@@ -92,15 +65,17 @@ public class ImportController : Controller
                 try
                 {
                     dt_ = reader.AsDataSet().Tables[0];
-                    for (int i = 0; i < dt_.Columns.Count; i++)
+                    dt.Columns.Add("PerDate");
+
+                    for (int i = 1; i < dt_.Columns.Count; i++)
                     {
                         dt.Columns.Add(dt_.Rows[0][i].ToString());
-
                     }
                     for (int row_ = 1; row_ < dt_.Rows.Count; row_++)
                     {
                         row = dt.NewRow();
-                        for (int col = 0; col < dt_.Columns.Count; col++)
+                        row[0] = "0102";
+                        for (int col = 1; col < dt_.Columns.Count; col++)
                         {
                             row[col] = dt_.Rows[row_][col].ToString();
                         }
@@ -130,24 +105,43 @@ public class ImportController : Controller
     {
         try
         {
-            var dbName = SetNameDb();
-
-            string query = CreateData(dataTable, dbName);
-
             string connectionString = _configuration.GetConnectionString("MarinaConnectionString");
-
-            SqlConnection con = new(connectionString);
-            SqlBulkCopy objBulk = new(con)
+            if (DESCId is null)
             {
-                DestinationTableName = dbName
-            };
+                string query = CreateData(dataTable, tblName);
+                using SqlConnection con = new(connectionString);
+                SqlBulkCopy objBulk = new(con)
+                {
+                    DestinationTableName = tblName
+                };
+                SqlCommand command = new(query, con);
+                con.Open();
+                command.ExecuteNonQuery();
+                objBulk.WriteToServer(dataTable);
+                con.Close();
+            }
+            else
+            {
+                //string queryDeleted = $"DELETE FROM {tblName} WHERE PerDate = @DESCId";
+                string queryDeleted = $"DELETE FROM @tblName WHERE PerDate = @DESCId";
+                using SqlConnection con = new(connectionString);
+                SqlCommand command = new(queryDeleted, con);
+                command.Parameters.AddWithValue("@DESCId", DESCId);
+                command.Parameters.AddWithValue("@tblName", tblName);
+                con.Open();
+                var rowsAffected = command.ExecuteNonQuery();
+                con.Close();
 
-            con.Open();
+                using (SqlBulkCopy bulkCopy = new(con))
+                {
+                    bulkCopy.DestinationTableName = tblName;
+                    //bulkCopy.BatchSize = 100; // تعداد رکورد در هر دسته
+                    //bulkCopy.BulkCopyTimeout = 60; // زمان مجاز برای انجام عملیات
 
-            SqlCommand command = new(query, con);
-            command.ExecuteNonQuery();
-            objBulk.WriteToServer(dataTable);
-            con.Close();
+                    ColumnMapping(dataTable, bulkCopy);
+                    bulkCopy.WriteToServer(dataTable);
+                };
+            }
         }
         catch (Exception)
         {
@@ -157,10 +151,21 @@ public class ImportController : Controller
         return true;
     }
 
+    private static void ColumnMapping(DataTable dataTable, SqlBulkCopy bulkCopy)
+    {
+        foreach (var column in dataTable.Columns)
+        {
+            var sourceColumn = column.ToString();
+            var destinationColumn = column.ToString();
+
+            bulkCopy.ColumnMappings.Add(sourceColumn, destinationColumn);
+        }
+    }
+
     private static string CreateData(DataTable dataTable, string dbName)
     {
-        var column = "";
-        var query = $"use [MarinaDb2]; CREATE TABLE DBO.[{dbName}] ( ";
+        var query = $"USE [MarinaDb2]; CREATE TABLE DBO.[{dbName}] ( ";
+        var column = "PerDate nvarchar(4) NOT NULL,";
         foreach (var item in dataTable.Columns)
         {
             column = item.ToString().Replace(" ", "");
@@ -211,31 +216,6 @@ public class ImportController : Controller
 
         return dataTable;
     }
-
-    //private static string SetDbName()
-    //{
-    //    ClaimsPrincipal currentUser = this.User;
-    //    ClaimsIdentity currentIdentity = currentUser.Identity as ClaimsIdentity;
-    //    string firstName = currentIdentity.Name;
-    //    string lastName = currentIdentity.FindFirst("LastName")?.Value;
-    //    string str = "";
-    //    var date = DateTime.Now.ToString("yyyy/MM/dd/HH:mm");
-    //    var dateStr = date.Replace("/", "").Replace(":", "");
-    //    //var firstName = user.Claims.FirstOrDefault(c => c.Type == "FirstName");
-    //    //var lastName = user.Claims.FirstOrDefault(c => c.Type == "LastName");
-    //    str = $"{dateStr}_{firstName}_{lastName}";
-    //    return str;
-    //}
-
-    //public string MyAction()
-    //{
-    //    var DistributorCode = User.FindFirstValue("DistributorCode");
-    //    var Province = User.FindFirstValue("Province");
-    //    var Line = User.FindFirstValue("Line");
-    //    // ...
-    //    var str = $"{DistributorCode}_{Province}_{Line}";
-    //    return str;
-    //}
     private string SetNameDb()
     {
         var httpContextAccessor = new HttpContextAccessor();
@@ -245,7 +225,42 @@ public class ImportController : Controller
         tblName = $"{distributorCode}_{province}_{line}";
         return tblName;
     }
+
+    private void GetPersianDate()
+    {
+        System.Globalization.PersianCalendar persianCalandar = new System.Globalization.PersianCalendar();
+        var dateTime = DateTime.Now;
+        string year = persianCalandar.GetYear(dateTime).ToString().Substring(2,4);
+        string month = persianCalandar.GetMonth(dateTime).ToString("MM");
+        //int day = persianCalandar.GetDayOfMonth(dateTime);
+        Date = $"{year}{month}";
+    }
 }
+//private static string SetDbName()
+//{
+//    ClaimsPrincipal currentUser = this.User;
+//    ClaimsIdentity currentIdentity = currentUser.Identity as ClaimsIdentity;
+//    string firstName = currentIdentity.Name;
+//    string lastName = currentIdentity.FindFirst("LastName")?.Value;
+//    string str = "";
+//    var date = DateTime.Now.ToString("yyyy/MM/dd/HH:mm");
+//    var dateStr = date.Replace("/", "").Replace(":", "");
+//    //var firstName = user.Claims.FirstOrDefault(c => c.Type == "FirstName");
+//    //var lastName = user.Claims.FirstOrDefault(c => c.Type == "LastName");
+//    str = $"{dateStr}_{firstName}_{lastName}";
+//    return str;
+//}
+
+//public string MyAction()
+//{
+//    var DistributorCode = User.FindFirstValue("DistributorCode");
+//    var Province = User.FindFirstValue("Province");
+//    var Line = User.FindFirstValue("Line");
+//    // ...
+//    var str = $"{DistributorCode}_{Province}_{Line}";
+//    return str;
+//}
+
 //    var roleClaim = HttpContext.User.FindFirst("role");
 //if (roleClaim != null)
 //{
@@ -281,4 +296,38 @@ public class ImportController : Controller
 //else
 //{
 //    // Handle the case where the user does not have the "role" claim
+//}
+
+
+
+
+//public Import()
+//{
+//    var identity = (ClaimsIdentity)User.Identity;
+//    IEnumerable<Claim> claims = identity.Claims;
+
+//    var nameClaim = ((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.Name);
+//    ClaimsPrincipal currentUser = this.User;
+//    ClaimsIdentity currentIdentity = currentUser.Identity as ClaimsIdentity;
+//    string firstName = currentIdentity.Name;
+//    string lastName = currentIdentity.FindFirst("LastName")?.Value;
+//    var date = DateTime.Now.ToString("yyyy/MM/dd/HH:mm");
+//    var dateStr = date.Replace("/", "").Replace(":", "");
+//    //var firstName = user.Claims.FirstOrDefault(c => c.Type == "FirstName");
+//    //var lastName = user.Claims.FirstOrDefault(c => c.Type == "LastName");
+//    str = $"{dateStr}_{firstName}_{lastName}";
+
+//}
+//public IActionResult MyAction()
+//{
+//    var jwtToken = "myJwtToken";
+//    var token = new JwtSecurityTokenHandler().ReadJwtToken(jwtToken);
+//    var claims = token.Claims;
+//    var nameClaim = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name);
+//    var name = nameClaim.Value;
+
+//    // Use the name in your code
+//    // ...
+
+//    return View();
 //}
