@@ -32,7 +32,7 @@ public class AccountController : Controller
         _provinceRepository = provinceRepository;
     }
 
-    //[Authorize(Policy = "admin")]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> List()
     {
         var res = await _userRepository.GetAll();

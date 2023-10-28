@@ -40,13 +40,13 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
     options.MinimumSameSitePolicy = SameSiteMode.None;
 });
 
-//builder.Services.AddAuthorization(options =>
-//{
-//    options.AddPolicy("AdminPolicy", policy =>
-//    {
-//        policy.RequireRole("admin");
-//    });
-//});
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminPolicy", policy =>
+    {
+        policy.RequireRole("admin");
+    });
+});
 
 builder.Services.AddControllersWithViews();
 

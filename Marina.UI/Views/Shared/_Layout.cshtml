@@ -44,10 +44,13 @@
 
                                     @* @if (@User.Claims.Any(x => x.Type == System.Security.Claims.ClaimTypes.Name))
                                 {*@
-                                    <div class="nav-item">
-                                        <a class="nav-link text-dark" asp-area="" asp-controller="Account"
+                                    @if (User.IsInRole("admin"))
+                                    {
+                                        <div class="nav-item">
+                                            <a class="nav-link text-dark" asp-area="" asp-controller="Account"
                                        asp-action="List">Panel Admin</a>
-                                    </div>
+                                        </div>
+                                    }
                                     @*}*@
                                 }
                             </div>

@@ -31,6 +31,7 @@ public class UserManager : IUserManager
 
         var authProperties = new AuthenticationProperties
         {
+            
             // AllowRefresh = <bool>,
             // Refreshing the authentication session should be allowed.
             // ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(10),
@@ -56,6 +57,7 @@ public class UserManager : IUserManager
     public async Task SignOut(HttpContext httpContext)
     {
         await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        await httpContext.ChallengeAsync(CookieAuthenticationDefaults.AuthenticationScheme);
     }
 
     private List<Claim> GetUserClaims(CookieUserItem user)

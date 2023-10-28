@@ -49,6 +49,9 @@
     <button type="submit" value="upload" class="btn btn-default">Save</button>
 </div>
 }*@
+
+@*@Html.ActionLink("Save", "Save", Model)*@
+
 @using (Html.BeginForm("Index", "Import", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
     <div>

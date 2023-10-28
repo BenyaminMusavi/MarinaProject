@@ -30,14 +30,14 @@ namespace Marina.UI.Providers.Repositories
             SqlTransaction transaction = connection.BeginTransaction();
             try
             {
-                var query = $"SELECT TOP (1) * FROM [MarinaDb2].[dbo].{tableName} ORDER BY ID DESC ";
+                var query = $"SELECT TOP (1) * FROM [MarinaDb2].[dbo].{tableName} ORDER BY Id DESC ";
                 SqlCommand command = new(query, connection, transaction);
                 SqlDataReader reader = command.ExecuteReader();
                 string datTime = "";
                 while (reader.Read())
                 {
                     // خواندن داده‌ها
-                    datTime = reader.GetString(0);
+                    datTime = reader.GetInt32(1).ToString();
                 }
 
                 reader.Close();

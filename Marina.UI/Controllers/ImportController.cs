@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using ExcelDataReader;
 using Marina.UI.Providers.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,7 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Marina.UI.Controllers;
 
+[Authorize]
 public class ImportController : Controller
 {
     private readonly IConfiguration _configuration;
@@ -74,7 +76,7 @@ public class ImportController : Controller
                     for (int row_ = 1; row_ < dt_.Rows.Count; row_++)
                     {
                         row = dt.NewRow();
-                        row[0] = "0102";
+                        row[0] = Date;
                         for (int col = 1; col < dt_.Columns.Count; col++)
                         {
                             row[col] = dt_.Rows[row_][col].ToString();
@@ -88,7 +90,7 @@ public class ImportController : Controller
                 }
                 reader.Close();
                 reader.Dispose();
-                //SaveToDataBase(dt);
+                SaveToDataBase(dt);
 
                 return View(dt);
             }
@@ -99,6 +101,12 @@ public class ImportController : Controller
 
         }
         return View();
+    }
+
+    [HttpPost]
+    public void Save(DataTable dt)
+    {
+        // Save
     }
 
     private async Task<bool> SaveToDataBase(DataTable dataTable)
@@ -230,8 +238,8 @@ public class ImportController : Controller
     {
         System.Globalization.PersianCalendar persianCalandar = new System.Globalization.PersianCalendar();
         var dateTime = DateTime.Now;
-        string year = persianCalandar.GetYear(dateTime).ToString().Substring(2,4);
-        string month = persianCalandar.GetMonth(dateTime).ToString("MM");
+        string year = persianCalandar.GetYear(dateTime).ToString().Substring(2,2);
+        string month = persianCalandar.GetMonth(dateTime).ToString("0#");
         //int day = persianCalandar.GetDayOfMonth(dateTime);
         Date = $"{year}{month}";
     }
