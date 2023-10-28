@@ -37,7 +37,7 @@ namespace Marina.UI.Providers.Repositories
                 while (reader.Read())
                 {
                     // خواندن داده‌ها
-                    datTime = reader.GetInt32(1).ToString();
+                    datTime = reader.GetString(1).ToString();
                 }
 
                 reader.Close();

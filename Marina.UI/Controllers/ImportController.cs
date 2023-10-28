@@ -118,24 +118,34 @@ public class ImportController : Controller
             {
                 string query = CreateData(dataTable, tblName);
                 using SqlConnection con = new(connectionString);
-                SqlBulkCopy objBulk = new(con)
-                {
-                    DestinationTableName = tblName
-                };
                 SqlCommand command = new(query, con);
                 con.Open();
                 command.ExecuteNonQuery();
-                objBulk.WriteToServer(dataTable);
+                using (SqlBulkCopy objBulk = new(con))
+                {
+                    objBulk.DestinationTableName = tblName;
+
+                    foreach (var column in dataTable.Columns)
+                    {
+                        var sourceColumn = column.ToString();
+                        var destinationColumn = column.ToString().Replace(" ", "");
+
+                        objBulk.ColumnMappings.Add(sourceColumn, destinationColumn);
+                    }
+
+                    objBulk.WriteToServer(dataTable);
+
+                };
                 con.Close();
             }
             else
             {
                 //string queryDeleted = $"DELETE FROM {tblName} WHERE PerDate = @DESCId";
-                string queryDeleted = $"DELETE FROM @tblName WHERE PerDate = @DESCId";
+                string queryDeleted = $"DELETE FROM {tblName} WHERE PerDate = @DESCId";
                 using SqlConnection con = new(connectionString);
                 SqlCommand command = new(queryDeleted, con);
                 command.Parameters.AddWithValue("@DESCId", DESCId);
-                command.Parameters.AddWithValue("@tblName", tblName);
+                //command.Parameters.AddWithValue("@tblName", tblName);
                 con.Open();
                 var rowsAffected = command.ExecuteNonQuery();
                 con.Close();
@@ -172,7 +182,7 @@ public class ImportController : Controller
 
     private static string CreateData(DataTable dataTable, string dbName)
     {
-        var query = $"USE [MarinaDb2]; CREATE TABLE DBO.[{dbName}] ( ";
+        var query = $"USE [MarinaDb2]; CREATE TABLE DBO.[{dbName}] (Id INT IDENTITY(1, 1), ";
         var column = "PerDate nvarchar(4) NOT NULL,";
         foreach (var item in dataTable.Columns)
         {
@@ -238,7 +248,7 @@ public class ImportController : Controller
     {
         System.Globalization.PersianCalendar persianCalandar = new System.Globalization.PersianCalendar();
         var dateTime = DateTime.Now;
-        string year = persianCalandar.GetYear(dateTime).ToString().Substring(2,2);
+        string year = persianCalandar.GetYear(dateTime).ToString().Substring(2, 2);
         string month = persianCalandar.GetMonth(dateTime).ToString("0#");
         //int day = persianCalandar.GetDayOfMonth(dateTime);
         Date = $"{year}{month}";
