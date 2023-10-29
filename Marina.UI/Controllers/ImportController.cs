@@ -43,7 +43,7 @@ public class ImportController : Controller
         {
             if (upload != null && upload.Length > 0)
             {
-                Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+                Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
                 Stream stream = upload.OpenReadStream();
                 IExcelDataReader reader;
                 if (upload.FileName.EndsWith(".xls"))
@@ -60,36 +60,8 @@ public class ImportController : Controller
                     return View();
                 }
 
-                DataTable dt = new();
-                DataRow row;
-                DataTable dt_ = new();
+                DataTable dt = CreateDataTable(reader);
 
-                try
-                {
-                    dt_ = reader.AsDataSet().Tables[0];
-                    dt.Columns.Add("PerDate");
-
-                    for (int i = 1; i < dt_.Columns.Count; i++)
-                    {
-                        dt.Columns.Add(dt_.Rows[0][i].ToString());
-                    }
-                    for (int row_ = 1; row_ < dt_.Rows.Count; row_++)
-                    {
-                        row = dt.NewRow();
-                        row[0] = Date;
-                        for (int col = 1; col < dt_.Columns.Count; col++)
-                        {
-                            row[col] = dt_.Rows[row_][col].ToString();
-                        }
-                        dt.Rows.Add(row);
-                    }
-                }
-                catch (Exception)
-                {
-                    ModelState.AddModelError("File", "Unable to upload file!");
-                }
-                reader.Close();
-                reader.Dispose();
                 SaveToDataBase(dt);
 
                 return View(dt);
@@ -101,6 +73,40 @@ public class ImportController : Controller
 
         }
         return View();
+    }
+
+    private DataTable CreateDataTable(IExcelDataReader reader)
+    {
+        DataTable dt = new();
+        DataRow row;
+        DataTable dt_ = new();
+        try
+        {
+            dt_ = reader.AsDataSet().Tables[0];
+            dt.Columns.Add("PerDate");
+            for (int i = 0; i < dt_.Columns.Count; i++)
+            {
+                dt.Columns.Add(dt_.Rows[0][i].ToString());
+            }
+            for (int row_ = 1; row_ < dt_.Rows.Count; row_++)
+            {
+                row = dt.NewRow();
+                row["PerDate"] = Date;
+
+                for (int col = 0; col < dt_.Columns.Count; col++)
+                {
+                    row[col + 1] = dt_.Rows[row_][col].ToString();
+                }
+                dt.Rows.Add(row);
+            }
+        }
+        catch (Exception)
+        {
+            ModelState.AddModelError("File", "Unable to upload file!");
+        }
+        reader.Close();
+        reader.Dispose();
+        return dt;
     }
 
     [HttpPost]
@@ -141,14 +147,13 @@ public class ImportController : Controller
             else
             {
                 //string queryDeleted = $"DELETE FROM {tblName} WHERE PerDate = @DESCId";
-                string queryDeleted = $"DELETE FROM {tblName} WHERE PerDate = @DESCId";
+                string queryDeleted = $"DELETE FROM {tblName} WHERE PerDate = @Date";
                 using SqlConnection con = new(connectionString);
                 SqlCommand command = new(queryDeleted, con);
-                command.Parameters.AddWithValue("@DESCId", DESCId);
+                command.Parameters.AddWithValue("@Date", Date);
                 //command.Parameters.AddWithValue("@tblName", tblName);
                 con.Open();
                 var rowsAffected = command.ExecuteNonQuery();
-                con.Close();
 
                 using (SqlBulkCopy bulkCopy = new(con))
                 {
@@ -159,9 +164,10 @@ public class ImportController : Controller
                     ColumnMapping(dataTable, bulkCopy);
                     bulkCopy.WriteToServer(dataTable);
                 };
+                con.Close();
             }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             throw;
         }
@@ -173,9 +179,10 @@ public class ImportController : Controller
     {
         foreach (var column in dataTable.Columns)
         {
+            //var sourceColumn = column.ToString();
+            //var destinationColumn = column.ToString();
             var sourceColumn = column.ToString();
-            var destinationColumn = column.ToString();
-
+            var destinationColumn = column.ToString().Replace(" ", "");
             bulkCopy.ColumnMappings.Add(sourceColumn, destinationColumn);
         }
     }
