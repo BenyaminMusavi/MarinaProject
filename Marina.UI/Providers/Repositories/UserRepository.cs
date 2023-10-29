@@ -71,7 +71,6 @@ public class UserRepository : IUserRepository
             return false;
         //if (currentUser.UserName == model.UserName || currentUser.DistributorName == model.DistributorName)
         //    return false;
-
         var salt = Hasher.GenerateSalt();
         var hashedPassword = Hasher.GenerateHash(model.Password, salt);
 

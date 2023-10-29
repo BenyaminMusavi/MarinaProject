@@ -9,6 +9,7 @@ using System.Security.Claims;
 
 namespace Marina.UI.Controllers;
 
+[Authorize]
 public class AccountController : Controller
 {
     private readonly IUserManager _userManager;
@@ -39,6 +40,7 @@ public class AccountController : Controller
         return View(res);
     }
 
+    [AllowAnonymous]
     public IActionResult Login()
     {
         return View();
@@ -51,6 +53,7 @@ public class AccountController : Controller
     }
 
     [HttpPost]
+    [AllowAnonymous]
     public async Task<IActionResult> Login(LoginVm model)
     {
 
@@ -71,7 +74,7 @@ public class AccountController : Controller
         return LocalRedirect("~/");
 
     }
-
+    [AllowAnonymous]
     public async Task<IActionResult> Register()
     {
         ViewBag.IsSuccess = false;
@@ -95,6 +98,7 @@ public class AccountController : Controller
     }
 
     [HttpPost]
+    [AllowAnonymous]
     public async Task<IActionResult> Register(RegisterVm model)
     {
         if (!ModelState.IsValid)

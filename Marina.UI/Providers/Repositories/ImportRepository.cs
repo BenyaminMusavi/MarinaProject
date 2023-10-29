@@ -23,7 +23,7 @@ public class ImportRepository : IImportRepository
         _configuration = configuration;
         connectionString = _configuration.GetConnectionString("MarinaConnectionString");
         tblName = Helper.SetNameDb();
-        databaseName = "[MarinaDb2]";
+        databaseName = _configuration.GetValue<string>("Database:Name");
     }
 
     public string CheckTable(string tableName)

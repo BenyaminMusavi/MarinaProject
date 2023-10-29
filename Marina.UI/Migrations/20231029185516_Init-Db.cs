@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Marina.UI.Migrations
 {
     /// <inheritdoc />
-    public partial class initDb : Migration
+    public partial class InitDb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -96,13 +96,31 @@ namespace Marina.UI.Migrations
                     Salt = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
-                    CreateDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValue: new DateTime(2023, 10, 26, 17, 57, 19, 38, DateTimeKind.Local).AddTicks(5233)),
+                    CreateDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValue: new DateTime(2023, 10, 29, 22, 25, 16, 523, DateTimeKind.Local).AddTicks(4532)),
                     UpdaterUserId = table.Column<long>(type: "bigint", nullable: true),
                     UpdateTime = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_User", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_User_Distributor_DistributorId",
+                        column: x => x.DistributorId,
+                        principalTable: "Distributor",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_User_Line_LineId",
+                        column: x => x.LineId,
+                        principalTable: "Line",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_User_Province_ProvinceId",
+                        column: x => x.ProvinceId,
+                        principalTable: "Province",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.InsertData(
@@ -142,20 +160,26 @@ namespace Marina.UI.Migrations
                     { 2, "R2" },
                     { 3, "R3" }
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_User_DistributorId",
+                table: "User",
+                column: "DistributorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_User_LineId",
+                table: "User",
+                column: "LineId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_User_ProvinceId",
+                table: "User",
+                column: "ProvinceId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "Distributor");
-
-            migrationBuilder.DropTable(
-                name: "Line");
-
-            migrationBuilder.DropTable(
-                name: "Province");
-
             migrationBuilder.DropTable(
                 name: "Region");
 
@@ -164,6 +188,15 @@ namespace Marina.UI.Migrations
 
             migrationBuilder.DropTable(
                 name: "User");
+
+            migrationBuilder.DropTable(
+                name: "Distributor");
+
+            migrationBuilder.DropTable(
+                name: "Line");
+
+            migrationBuilder.DropTable(
+                name: "Province");
         }
     }
 }

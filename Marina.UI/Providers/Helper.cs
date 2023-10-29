@@ -1,4 +1,6 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using Marina.UI.Models.Entities;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using System.Data;
 using System.Security.Claims;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -48,5 +50,12 @@ public static class Helper
         query = query.Substring(0, query.Length - 1);
         query += ");";
         return query;
+    }
+
+    public static void EnsureDatabaseMigrated(this IApplicationBuilder app)
+    {
+        using var scope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<MarinaDbContext>();
+        dbContext.Database.Migrate();
     }
 }

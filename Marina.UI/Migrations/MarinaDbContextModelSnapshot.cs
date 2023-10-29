@@ -181,7 +181,7 @@ namespace Marina.UI.Migrations
                     b.Property<DateTime>("CreateDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2023, 10, 26, 22, 49, 56, 105, DateTimeKind.Local).AddTicks(1350));
+                        .HasDefaultValue(new DateTime(2023, 10, 29, 22, 25, 16, 523, DateTimeKind.Local).AddTicks(4532));
 
                     b.Property<int>("DistributorId")
                         .HasColumnType("int");
@@ -241,7 +241,40 @@ namespace Marina.UI.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DistributorId");
+
+                    b.HasIndex("LineId");
+
+                    b.HasIndex("ProvinceId");
+
                     b.ToTable("User", (string)null);
+                });
+
+            modelBuilder.Entity("Marina.UI.Models.Entities.User", b =>
+                {
+                    b.HasOne("Marina.UI.Models.Entities.Distributor", "Distributor")
+                        .WithMany()
+                        .HasForeignKey("DistributorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Marina.UI.Models.Entities.Line", "Line")
+                        .WithMany()
+                        .HasForeignKey("LineId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Marina.UI.Models.Entities.Province", "Province")
+                        .WithMany()
+                        .HasForeignKey("ProvinceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Distributor");
+
+                    b.Navigation("Line");
+
+                    b.Navigation("Province");
                 });
 #pragma warning restore 612, 618
         }

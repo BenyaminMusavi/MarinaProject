@@ -3,13 +3,11 @@ using Marina.UI.Providers;
 using Marina.UI.Providers.Repositories;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
-
 // Add services to the container.
 
-builder.Services.AddDbContext<MarinaDbContext>(c => c.UseSqlServer(builder.Configuration.GetConnectionString("MarinaDb")));
+builder.Services.AddDbContext<MarinaDbContext>(c => c.UseSqlServer(builder.Configuration.GetConnectionString("MarinaConnectionString")));
 
 builder.Services.AddScoped<IUserManager, UserManager>();
 
@@ -63,6 +61,7 @@ else
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+app.EnsureDatabaseMigrated();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 

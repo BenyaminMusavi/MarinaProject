@@ -19,8 +19,8 @@ public partial class MarinaDbContext : DbContext
     public DbSet<Line> Lines { get; set; }
     public DbSet<Province> Provinces { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-      => optionsBuilder.UseSqlServer("Data Source=.;Initial Catalog=MarinaDb2;integrated security=true;TrustServerCertificate=True");
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { }
+      //=> optionsBuilder.UseSqlServer("Data Source=.;Initial Catalog=MarinaDb;integrated security=true;TrustServerCertificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -82,7 +82,6 @@ public partial class MarinaDbContext : DbContext
             entity.Property(e => e.UpdaterUserId).IsRequired(false);
             entity.Property(e => e.UpdateTime).HasColumnType("datetime2").IsRequired(false);
 
-            //entity.HasData(new User { Id = 1, });
         });
         OnModelCreatingPartial(modelBuilder);
     }
