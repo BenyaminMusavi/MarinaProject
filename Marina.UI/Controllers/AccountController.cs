@@ -63,8 +63,7 @@ public class AccountController : Controller
 
         if (user.UserId == 1)
         {
-            var identity = (ClaimsIdentity)User.Identity;
-            identity.AddClaim(new Claim(ClaimTypes.Role, "admin"));
+   
             await _userManager.SignIn(this.HttpContext, user, false);
             return LocalRedirect("~/Account/list");
         }

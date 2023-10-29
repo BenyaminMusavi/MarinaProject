@@ -1,50 +1,52 @@
-﻿//using Marina.UI.Models.Entities;
-//using Marina.UI.Providers.Repositories;
-//using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.Data.SqlClient;
+using System.Data;
+using System.Security.Claims;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
-//namespace Marina.UI.Providers
-//{
-//    public static class Helper
-//    {
-//        //private readonly IRegionRepository _regionRepository;
+namespace Marina.UI.Providers;
 
-//        //public Helper(IRegionRepository regionRepository)
-//        //{
-//        //    _regionRepository = regionRepository;
-//        //}
+public static class Helper
+{
+    public static string GetPersianDate()
+    {
+        System.Globalization.PersianCalendar persianCalandar = new();
+        var dateTime = DateTime.Now;
+        string year = persianCalandar.GetYear(dateTime).ToString().Substring(2, 2);
+        string month = persianCalandar.GetMonth(dateTime).ToString("0#");
+        //int day = persianCalandar.GetDayOfMonth(dateTime);
+        return $"{year}{month}";
+    }
 
-//        public static List<SelectListItem> GetRegionList(List<Region> region) //string selectedItem = null, bool addEmptyItem = false
-//        {
-//            var items = new List<SelectListItem>();
-//            //try
-//            //{
-//            if (true)
-//                items.Add(new SelectListItem { Text = "", Value = "0" });
+    public static string SetNameDb()
+    {
+        var httpContextAccessor = new HttpContextAccessor();
+        var province = httpContextAccessor.HttpContext?.User.FindFirstValue("Province");
+        var distributorCode = httpContextAccessor.HttpContext?.User.FindFirstValue("DistributorCode");
+        var line = httpContextAccessor.HttpContext?.User.FindFirstValue("Line");
+        var tblName = $"{distributorCode}_{province}_{line}";
+        return tblName;
+    }
 
-//            var apiService = _regionRepository.GetAll();
-//            //var response = true;
-//            if (region is not null) //response
-//            {
-//                foreach (var item in region)
-//                {
-//                    var optionItem = new SelectListItem
-//                    {
-//                        Text = item.Name,
-//                        Value = item.Id.ToString(),
-//                    };
-//                    //optionItem.Selected = selectedItem.HasValue() ? selectedItem == optionItem.Value : false;
+    public static void ColumnMapping(DataTable dataTable, SqlBulkCopy bulkCopy)
+    {
+        foreach (var column in dataTable.Columns)
+        {
+            var sourceColumn = column.ToString();
+            var destinationColumn = column.ToString().Replace(" ", "");
+            bulkCopy.ColumnMappings.Add(sourceColumn, destinationColumn);
+        }
+    }
 
-//                    items.Add(optionItem);
-//                }
-
-
-//            }
-//            //}
-//            //catch (Exception ex)
-//            //{
-//            //    getLogger().Error(ex);
-//            //}
-//            return items;
-//        }
-//    }
-//}
+    public static string CreateData(DataTable dataTable, string dbName)
+    {
+        var query = $"USE [MarinaDb2]; CREATE TABLE DBO.[{dbName}] (Id INT IDENTITY(1, 1), ";
+        foreach (var item in dataTable.Columns)
+        {
+            string? column = item.ToString().Replace(" ", "");
+            query += $"{column} nvarchar(100) NULL,";
+        }
+        query = query.Substring(0, query.Length - 1);
+        query += ");";
+        return query;
+    }
+}

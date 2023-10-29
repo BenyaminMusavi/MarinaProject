@@ -38,6 +38,7 @@ public class UserRepository : IUserRepository
             Line = m.Line.Name,
             Province = m.Province.Name,
             CreatedUtc = m.CreateDate,
+            UserId = m.Id
         });
 
         return results.FirstOrDefault();

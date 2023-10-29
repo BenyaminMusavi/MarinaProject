@@ -1,120 +1,103 @@
-﻿using ExcelDataReader;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Data.SqlClient;
 using System.Data;
-using System.Text;
+using System.Transactions;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
-namespace Marina.UI.Providers.Repositories
+namespace Marina.UI.Providers.Repositories;
+
+public interface IImportRepository
 {
-    public interface IImportRepository
+    string CheckTable(string tableName);
+    Task<bool> SaveToDataBase(DataTable dt);
+}
+
+public class ImportRepository : IImportRepository
+{
+    private readonly IConfiguration _configuration;
+    private  string DESCId = "";
+    private readonly string tblName = "";
+    private readonly string connectionString = "";
+    private readonly string databaseName = "";
+    public ImportRepository(IConfiguration configuration)
     {
-        string CheckTable(string tableName);
+        _configuration = configuration;
+        connectionString = _configuration.GetConnectionString("MarinaConnectionString");
+        tblName = Helper.SetNameDb();
+        databaseName = "[MarinaDb2]";
     }
-    public class ImportRepository : IImportRepository
+
+    public string CheckTable(string tableName)
     {
-        private readonly IConfiguration _configuration;
-
-        public ImportRepository(IConfiguration configuration)
+        using SqlConnection connection = new(connectionString);
+        connection.Open();
+        //SqlTransaction transaction = connection.BeginTransaction();
+        try
         {
-
-            _configuration = configuration;
-
+            var query = $"SELECT TOP (1) * FROM {databaseName}.[dbo].{tableName} ORDER BY Id DESC ";
+            SqlCommand command = new(query, connection);
+            SqlDataReader reader = command.ExecuteReader();
+            string datTime = reader.GetString(1).ToString();
+            reader.Close();
+            //transaction.Commit();
+            return datTime;
         }
-
-        public string CheckTable(string tableName)
+        catch (Exception ex)
         {
-            string connectionString = _configuration.GetConnectionString("MarinaConnectionString");
-            using SqlConnection connection = new SqlConnection(connectionString);
-            connection.Open();
-            SqlTransaction transaction = connection.BeginTransaction();
-            try
+            //transaction.Rollback();
+            Console.WriteLine("خطا در اجرای کوئری: " + ex.Message);
+            return null;
+        }
+    }
+
+    public async Task<bool> SaveToDataBase(DataTable dataTable)
+    {
+        using SqlConnection con = new(connectionString);
+        SqlTransaction transaction = con.BeginTransaction();
+        DESCId = CheckTable(tblName);
+        try
+        {
+            if (DESCId is null)
             {
-                var query = $"SELECT TOP (1) * FROM [MarinaDb2].[dbo].{tableName} ORDER BY Id DESC ";
-                SqlCommand command = new(query, connection, transaction);
-                SqlDataReader reader = command.ExecuteReader();
-                string datTime = "";
-                while (reader.Read())
+                string query = Helper.CreateData(dataTable, tblName);
+                SqlCommand command = new(query, con, transaction);
+                con.Open();
+                command.ExecuteNonQuery();
+                using (SqlBulkCopy bulkCopy = new(con))
                 {
-                    // خواندن داده‌ها
-                    datTime = reader.GetString(1).ToString();
-                }
-
-                reader.Close();
+                    foreach (var column in dataTable.Columns)
+                    {
+                        bulkCopy.DestinationTableName = tblName;
+                        Helper.ColumnMapping(dataTable, bulkCopy);
+                        bulkCopy.WriteToServer(dataTable);
+                    }
+                };
+                con.Close();
                 transaction.Commit();
-                return datTime;
+
             }
-            catch (Exception ex) //Microsoft.Data.SqlClient.SqlException  : Microsoft.Data.SqlClient.SqlException
+            else
             {
-                transaction.Rollback();
-                Console.WriteLine("خطا در اجرای کوئری: " + ex.Message);
-                return null;
+                var Date = Helper.GetPersianDate();
+                string queryDeleted = $"DELETE FROM {tblName} WHERE PerDate = @Date";
+                SqlCommand command = new(queryDeleted, con, transaction);
+                command.Parameters.AddWithValue("@Date", Date);
+                con.Open();
+                var rowsAffected = command.ExecuteNonQuery();
+                using (SqlBulkCopy bulkCopy = new(con))
+                {
+                    bulkCopy.DestinationTableName = tblName;
+                    Helper.ColumnMapping(dataTable, bulkCopy);
+                    bulkCopy.WriteToServer(dataTable);
+                };
+                con.Close();
+                transaction.Commit();
             }
-
         }
-
-
-
-
-
-
-
-
-
-
-
-
-        //private IActionResult LoadAndSaveExcel(IFormFile upload)
-        //{
-        //    Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
-        //    Stream stream = upload.OpenReadStream();
-        //    IExcelDataReader reader;
-        //    if (upload.FileName.EndsWith(".xls"))
-        //    {
-        //        reader = ExcelReaderFactory.CreateBinaryReader(stream);
-        //    }
-        //    else if (upload.FileName.EndsWith(".xlsx"))
-        //    {
-        //        reader = ExcelReaderFactory.CreateOpenXmlReader(stream);
-        //    }
-        //    else
-        //    {
-        //        ModelState.AddModelError("File", "This file format is not support");
-        //        return View();
-        //    }
-
-        //    DataTable dt = new();
-        //    DataRow row;
-        //    DataTable dt_ = new();
-
-        //    try
-        //    {
-        //        dt_ = reader.AsDataSet().Tables[0];
-        //        for (int i = 0; i < dt_.Columns.Count; i++)
-        //        {
-        //            dt.Columns.Add(dt_.Rows[0][i].ToString());
-
-        //        }
-        //        for (int row_ = 1; row_ < dt_.Rows.Count; row_++)
-        //        {
-        //            row = dt.NewRow();
-        //            for (int col = 0; col < dt_.Columns.Count; col++)
-        //            {
-        //                row[col] = dt_.Rows[row_][col].ToString();
-        //            }
-        //            dt.Rows.Add(row);
-        //        }
-        //    }
-        //    catch (Exception)
-        //    {
-        //        ModelState.AddModelError("File", "Unable to upload file!");
-        //    }
-        //    reader.Close();
-        //    reader.Dispose();
-        //    //SaveToDataBase(dt);
-
-        //    return View(dt);
-        //}
-
+        catch (Exception ex)
+        {
+            transaction.Commit();
+            throw;
+        }
+        return true;
     }
 }

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Principal;
 
 namespace Marina.UI.Providers;
 
@@ -70,6 +71,9 @@ public class UserManager : IUserManager
             new Claim("Line", user.Line),
             new Claim("Province", user.Province),
         };
+        if (user.UserId == 1)
+            claims.Add(new Claim(ClaimTypes.Role, "admin"));
+
         return claims;
     }
 
