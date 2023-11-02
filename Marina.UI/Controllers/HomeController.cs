@@ -22,17 +22,39 @@ public class HomeController : Controller
     }
 
     [Authorize]
-    public IActionResult Index(int? page)
+    //public IActionResult Index(int? page)
+    //{
+    //    var dbName = Helper.SetNameDb();
+
+    //    var model = _importRepository.GetAll();
+    //    List<DataRow> rows = model.AsEnumerable().ToList();
+
+    //    var pageNumber = page ?? 1;
+    //    int pageSize = 25;
+
+    //    var result = rows.ToPagedList(pageNumber, pageSize);
+    //    return View(result);
+    //}
+
+    public IActionResult Index(int? page, int pageSize = 25)
     {
         var dbName = Helper.SetNameDb();
 
         var model = _importRepository.GetAll();
         List<DataRow> rows = model.AsEnumerable().ToList();
 
+        if (TempData["DataRows"] != null && TempData["DataRows"] is List<DataRow> tempRows && tempRows.SequenceEqual(rows))
+        {
+            rows = tempRows;
+        }
+        else
+        {
+            TempData["DataRows"] = rows;
+        }
+
         var pageNumber = page ?? 1;
-        int pageSize = 25;
-        var result = rows;
-        result.ToPagedList(pageNumber, pageSize);
+
+        var result = rows.ToPagedList(pageNumber, pageSize);
         return View(result);
     }
 

@@ -1,6 +1,7 @@
 ﻿@using X.PagedList.Mvc.Core;
 @using X.PagedList;
-
+@using System.Data
+@model PagedList<DataRow>
 
 
 @Html.PagedListPager((IPagedList)Model,page=>Url.Action("Index",new {page=page}),
@@ -13,103 +14,37 @@ new X.PagedList.Mvc.Common.PagedListRenderOptions{
 
 
 
-
-@*@{
-    ViewData["Title"] = "Home Page";
-}
-
-@model System.Data.DataTable
-@using System.Data
-
-<script src="~/lib/jquery/dist/jquery.js"></script>
-
-<script>
-    function bs_input_file() {
-        $(".input-file").before(
-            function () {
-                if (!$(this).prev().hasClass('input-ghost')) {
-                    var element = $("<input type='file' id='dataFile' name='upload' class='input-ghost' style='visibility:hidden; height:0'>")
-                    element.attr("name", $(this).attr("name"));
-                    element.change(function () {
-                        element.next(element).find('input').val((element.val()).split('\\').prop());
-                    });
-                    $(this).find("button.btn-choose").click(function () {
-                        element.click();
-                    });
-                    $(this).find('input').css("cursor", "pointer");
-                    $(this).find('input').mousedown(function () {
-                     $(this).parents(".input-file").prev().click();
-                    });
-                    return element;
-                }
-            }
-        )
-    }
-
-    function clear() {
-        var input = $("#dataFile").val('');
-    }
-
-    $(function () {
-        clear();
-        bs_input_file();
-    })
-
-</script>
-
-
-@using (Html.BeginForm("Index", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
+@if (Model != null)
 {
-    <div>
-        <h2>Browse file for uploading</h2>
-        <div class="form-group">
-            <div class="input-group input-file">
-                <span>
-                    <button class="btn btn-default btn-choose" type="button">Choose</button>
-                </span>
-                <input type="text" class="form-control" placeholder="choose a file..." />
-            </div>
-        </div>
+    <div class="table-wrapper">
 
-        <div class="form-group">
-            <input type="submit" value="upload" class="btn btn-default" />
-        </div>
-        <div class="alert alert-danger">
-            @Html.ValidationSummary()
-        </div>
-        @if (Model != null)
-        {
-            <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    @foreach (DataColumn column in Model[0].Table.Columns)
+                    {
+                        <th>@column.ColumnName</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
 
-                <table>
-                    <thead>
-                        <tr>
-                            @foreach (DataColumn col in Model.Columns)
-                            {
-                                <th>@col.ColumnName</th>
-                            }
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (DataRow row in Model.Rows)
+                @foreach (DataRow row in Model)
+                {
+                    <tr>
+                        @foreach (DataColumn column in row.Table.Columns)
                         {
-                            <tr>
-                                @foreach (DataColumn col in Model.Columns)
-                                {
-                                    <td>@row[col.ColumnName]</td>
-                                }
-                            </tr>
+                            <td>@row[column.ColumnName]</td>
                         }
-                    </tbody>
-                </table>
+                    </tr>
+                }
 
-
-            </div>
-        }
+            </tbody>
+        </table>
     </div>
-}*@
 
 
+}
 
 <script>
 
@@ -118,3 +53,27 @@ new X.PagedList.Mvc.Common.PagedListRenderOptions{
     });
 
 </script>
+@*
+
+
+
+<div class="pager">
+    @if (Model.PageCount > 1)
+    {
+        <ul>
+            @if (Model.HasPreviousPage)
+            {
+                <li><a href="@Url.Action("Index", new { page = Model.PageNumber - 1 })">Previous</a></li>
+            }
+            @for (int i = 1; i <= Model.PageCount; i++)
+            {
+                <li><a href="@Url.Action("Index", new { page = i })" class="@((i == Model.PageNumber) ? "active" : "")">@i</a></li>
+            }
+            @if (Model.HasNextPage)
+            {
+                <li><a href="@Url.Action("Index", new { page = Model.PageNumber + 1 })">Next</a></li>
+            }
+        </ul>
+    }
+</div>
+*@
