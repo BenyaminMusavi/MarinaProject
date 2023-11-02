@@ -3,17 +3,6 @@
 @using System.Data
 @model PagedList<DataRow>
 
-
-@Html.PagedListPager((IPagedList)Model,page=>Url.Action("Index",new {page=page}),
-new X.PagedList.Mvc.Common.PagedListRenderOptions{
-    DisplayItemSliceAndTotal = true,
-    ContainerDivClasses = new[] {"navigation"},
-    LiElementClasses = new[] {"page-item"},
-    PageClasses = new[] {"page-link"},
-})
-
-
-
 @if (Model != null)
 {
     <div class="table-wrapper">
@@ -43,7 +32,18 @@ new X.PagedList.Mvc.Common.PagedListRenderOptions{
         </table>
     </div>
 
+    <br />
+    @Html.PagedListPager((IPagedList)Model,page=>Url.Action("Index",new {page=page}),
+new X.PagedList.Mvc.Common.PagedListRenderOptions{
+    DisplayItemSliceAndTotal = true,
+    ContainerDivClasses = new[] {"navigation"},
+    LiElementClasses = new[] {"page-item"},
+    PageClasses = new[] {"page-link"},
+})
 
+    <br />
+    <br />
+    <br />
 }
 
 <script>
@@ -53,10 +53,10 @@ new X.PagedList.Mvc.Common.PagedListRenderOptions{
     });
 
 </script>
+
+
+
 @*
-
-
-
 <div class="pager">
     @if (Model.PageCount > 1)
     {

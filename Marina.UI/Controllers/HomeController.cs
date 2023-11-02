@@ -21,7 +21,6 @@ public class HomeController : Controller
         _importRepository = importRepository;
     }
 
-    [Authorize]
     //public IActionResult Index(int? page)
     //{
     //    var dbName = Helper.SetNameDb();
@@ -36,6 +35,7 @@ public class HomeController : Controller
     //    return View(result);
     //}
 
+    [Authorize]
     public IActionResult Index(int? page, int pageSize = 25)
     {
         var dbName = Helper.SetNameDb();
@@ -43,14 +43,14 @@ public class HomeController : Controller
         var model = _importRepository.GetAll();
         List<DataRow> rows = model.AsEnumerable().ToList();
 
-        if (TempData["DataRows"] != null && TempData["DataRows"] is List<DataRow> tempRows && tempRows.SequenceEqual(rows))
-        {
-            rows = tempRows;
-        }
-        else
-        {
-            TempData["DataRows"] = rows;
-        }
+        //if (TempData["DataRows"] != null && TempData["DataRows"] is List<DataRow> tempRows && tempRows.SequenceEqual(rows))
+        //{
+        //    rows = tempRows;
+        //}
+        //else
+        //{
+        //    TempData["DataRows"] = rows;
+        //}
 
         var pageNumber = page ?? 1;
 
