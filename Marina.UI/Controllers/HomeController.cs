@@ -1,12 +1,9 @@
-﻿using ExcelDataReader;
-using Marina.UI.Models;
-using Marina.UI.Providers;
+﻿using Marina.UI.Models;
 using Marina.UI.Providers.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
 using System.Diagnostics;
-using System.Text;
 using X.PagedList;
 
 namespace Marina.UI.Controllers;
@@ -38,8 +35,6 @@ public class HomeController : Controller
     [Authorize]
     public IActionResult Index(int? page, int pageSize = 25)
     {
-        var dbName = Helper.SetNameDb();
-
         var model = _importRepository.GetAll();
         List<DataRow> rows = model.AsEnumerable().ToList();
 
