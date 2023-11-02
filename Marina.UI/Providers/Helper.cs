@@ -31,17 +31,25 @@ public static class Helper
 
     public static void ColumnMapping(DataTable dataTable, SqlBulkCopy bulkCopy)
     {
-        foreach (var column in dataTable.Columns)
+        try
         {
-            var sourceColumn = column.ToString();
-            var destinationColumn = column.ToString().Replace(" ", "");
-            bulkCopy.ColumnMappings.Add(sourceColumn, destinationColumn);
+            foreach (var column in dataTable.Columns)
+            {
+                var sourceColumn = column.ToString();
+                var destinationColumn = column.ToString().Replace(" ", "");
+                bulkCopy.ColumnMappings.Add(sourceColumn, destinationColumn);
+            }
+        }
+        catch (Exception ex)
+        {
+
+            throw;
         }
     }
 
-    public static string CreateData(DataTable dataTable, string dbName)
+    public static string CreateData(DataTable dataTable,string databaseName, string tblName)
     {
-        var query = $"USE [MarinaDb2]; CREATE TABLE DBO.[{dbName}] (Id INT IDENTITY(1, 1), ";
+        var query = $"USE [{databaseName}]; CREATE TABLE DBO.[{tblName}] (Id INT IDENTITY(1, 1), ";
         foreach (var item in dataTable.Columns)
         {
             string? column = item.ToString().Replace(" ", "");
@@ -56,6 +64,11 @@ public static class Helper
     {
         using var scope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<MarinaDbContext>();
-        dbContext.Database.Migrate();
+        var pendingMigrations = dbContext.Database.GetPendingMigrations();
+
+        if (pendingMigrations.Any())
+        {
+            dbContext.Database.Migrate();
+        }
     }
 }

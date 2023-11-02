@@ -1,4 +1,7 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ActionConstraints;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Data;
 using System.Transactions;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
@@ -9,12 +12,13 @@ public interface IImportRepository
 {
     string CheckTable(string tableName);
     Task<bool> SaveToDataBase(DataTable dt);
+    DataTable GetAll();
 }
 
 public class ImportRepository : IImportRepository
 {
     private readonly IConfiguration _configuration;
-    private  string DESCId = "";
+    private string DESCId = "";
     private readonly string tblName = "";
     private readonly string connectionString = "";
     private readonly string databaseName = "";
@@ -52,15 +56,15 @@ public class ImportRepository : IImportRepository
     public async Task<bool> SaveToDataBase(DataTable dataTable)
     {
         using SqlConnection con = new(connectionString);
-        SqlTransaction transaction = con.BeginTransaction();
         DESCId = CheckTable(tblName);
         try
         {
+            con.Open();
+            //SqlTransaction transaction = con.BeginTransaction();
             if (DESCId is null)
             {
-                string query = Helper.CreateData(dataTable, tblName);
-                SqlCommand command = new(query, con, transaction);
-                con.Open();
+                string query = Helper.CreateData(dataTable, databaseName, tblName);
+                SqlCommand command = new(query, con); //transaction
                 command.ExecuteNonQuery();
                 using (SqlBulkCopy bulkCopy = new(con))
                 {
@@ -72,14 +76,14 @@ public class ImportRepository : IImportRepository
                     }
                 };
                 con.Close();
-                transaction.Commit();
+                //transaction.Commit();
 
             }
             else
             {
                 var Date = Helper.GetPersianDate();
                 string queryDeleted = $"DELETE FROM {tblName} WHERE PerDate = @Date";
-                SqlCommand command = new(queryDeleted, con, transaction);
+                SqlCommand command = new(queryDeleted, con);
                 command.Parameters.AddWithValue("@Date", Date);
                 con.Open();
                 var rowsAffected = command.ExecuteNonQuery();
@@ -90,14 +94,40 @@ public class ImportRepository : IImportRepository
                     bulkCopy.WriteToServer(dataTable);
                 };
                 con.Close();
-                transaction.Commit();
+                //transaction.Commit();
             }
         }
         catch (Exception ex)
         {
-            transaction.Commit();
+            //transaction.Commit();
             throw;
         }
         return true;
     }
+
+    public DataTable GetAll()
+    {
+        using SqlConnection connection = new(connectionString);
+        DataTable dataTable = new();
+
+        var query = $"SELECT * FROM {databaseName}.[dbo].{tblName} ";
+        SqlDataAdapter adapter = new(query, connection);
+
+        connection.Open();
+        adapter.Fill(dataTable);
+        return dataTable;
+    }
+
+    //public async Task<DataTable> GetAllAsync()
+    //{
+    //    using SqlConnection connection = new(connectionString);
+    //    DataTable dataTable = new();
+
+    //    var query = $"SELECT * FROM {databaseName}.[dbo].{tblName} ";
+    //    SqlDataAdapter adapter = new(query, connection);
+
+    //    await connection.OpenAsync();
+    //    await adapter.FillAsync(dataTable);
+    //    return dataTable;
+    //}
 }
