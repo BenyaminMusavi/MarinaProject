@@ -8,6 +8,15 @@ namespace Marina.UI.Providers;
 
 public static class Helper
 {
+    public static string GetConnectionString()
+    {
+        IConfigurationRoot configuration = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json")
+            .Build();
+
+        return configuration.GetConnectionString("MarinaConnectionString");
+    }
+
     public static string GetPersianDate()
     {
         System.Globalization.PersianCalendar persianCalandar = new();
@@ -46,7 +55,7 @@ public static class Helper
         }
     }
 
-    public static string CreateData(DataTable dataTable,string databaseName, string tblName)
+    public static string CreateData(DataTable dataTable, string databaseName, string tblName)
     {
         var query = $"USE [{databaseName}]; CREATE TABLE DBO.[{tblName}] (Id INT IDENTITY(1, 1), ";
         foreach (var item in dataTable.Columns)
@@ -70,4 +79,5 @@ public static class Helper
             dbContext.Database.Migrate();
         }
     }
+
 }
