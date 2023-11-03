@@ -30,18 +30,20 @@
                                 <div class="nav-item">
                                     <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                                 </div>
-                           @*     <div class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Home"
-                                       asp-action="Privacy">Privacy</a>
+                                @*     <div class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Home"
+                                asp-action="Privacy">Privacy</a>
                                 </div>*@
 
                                 @if (User.Identity.IsAuthenticated)
                                 {
-                                    <div class="nav-item">
-                                        <a class="nav-link text-dark" asp-area="" asp-controller="Import"
-                                       asp-action="Index">Import</a>
-                                    </div>
-
+                                        <div class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Import"
+                                asp-action="Index">Import</a>
+                                </div>
+                                
+@*                                    <button type="button" class="btn btn-primary" onclick="openModal()">Open Modal</button>
+*@
 
                                     @if (User.IsInRole("admin"))
                                     {
@@ -112,3 +114,17 @@
 </body>
 
 </html>
+
+<script>
+    function openModal() {
+        $.ajax({
+            url: '/Controller/Action',
+            type: 'GET',
+            success: function (data) {
+                $('#myModal .modal-body').html(data);
+                $('#myModal').modal('show');
+            }
+        });
+    }
+
+</script>

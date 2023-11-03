@@ -20,7 +20,7 @@ public partial class MarinaDbContext : DbContext
     public DbSet<Province> Provinces { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { }
-      //=> optionsBuilder.UseSqlServer("Data Source=.;Initial Catalog=MarinaDb;integrated security=true;TrustServerCertificate=True");
+    //=> optionsBuilder.UseSqlServer("Data Source=.;Initial Catalog=MarinaDb;integrated security=true;TrustServerCertificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -47,6 +47,8 @@ public partial class MarinaDbContext : DbContext
             entity.ToTable("Distributor");
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Code).HasMaxLength(50);
+
+            entity.HasData(new Distributor { Id = 1, Code = "D1" }, new Distributor { Id = 2, Code = "D2" }, new Distributor { Id = 3, Code = "D3" });
         });
 
         modelBuilder.Entity<RSM>(entity =>
@@ -81,6 +83,8 @@ public partial class MarinaDbContext : DbContext
             entity.Property(e => e.CreateDate).HasColumnType("datetime2").HasDefaultValue(DateTime.Now);
             entity.Property(e => e.UpdaterUserId).IsRequired(false);
             entity.Property(e => e.UpdateTime).HasColumnType("datetime2").IsRequired(false);
+
+            entity.HasData(new User { Id = 1, DistributorName = "admin", RegionId = 1, RSMId = 1, UserName = "admin", DistributorId = 1, LineId = 1, ProvinceId = 1, PhoneNumber = "0901", PasswordHash = "Gco+uHGl5M4H2AXm7UqdfBz/VrFZrLUQiXy9tU9f9d8=", Salt = "wJ8Ddinmsj1ZLo5+J9N0FvchZRgOeGlRLDKIIZu3KAs=", IsDeleted = false, IsActive = true, CreateDate = DateTime.Now });
 
         });
         OnModelCreatingPartial(modelBuilder);

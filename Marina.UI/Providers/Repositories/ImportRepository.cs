@@ -37,13 +37,20 @@ public class ImportRepository : IImportRepository
         //SqlTransaction transaction = connection.BeginTransaction();
         try
         {
-            var query = $"SELECT TOP (1) * FROM {databaseName}.[dbo].{tableName} ORDER BY Id DESC ";
+            tableName = "jnjk";
+            //var query = $"SELECT TOP (1) * FROM {databaseName}.[dbo].{tableName} ORDER BY Id DESC ";
+            var query = $"IF EXISTS (SELECT TOP (1) * FROM {databaseName}.[dbo].{tableName} ) SELECT TOP (1) * FROM {databaseName}.[dbo].{tableName} ELSE SELECT 'Table does not exist.';";
             SqlCommand command = new(query, connection);
-            SqlDataReader reader = command.ExecuteReader();
-            string datTime = reader.GetString(1).ToString();
+            var reader = command.ExecuteReader();
+            string result = null;
+            if (reader.HasRows)
+            {
+                reader.Read();
+                result = reader.GetString(1);
+            }
             reader.Close();
             //transaction.Commit();
-            return datTime;
+            return result;
         }
         catch (Exception ex)
         {
@@ -107,14 +114,18 @@ public class ImportRepository : IImportRepository
 
     public DataTable GetAll()
     {
-        using SqlConnection connection = new(connectionString);
+        DESCId = CheckTable(tblName);
         DataTable dataTable = new();
+        if (DESCId is not null)
+        {
+            using SqlConnection connection = new(connectionString);
 
-        var query = $"SELECT * FROM {databaseName}.[dbo].{tblName} ";
-        SqlDataAdapter adapter = new(query, connection);
+            var query = $"SELECT * FROM {databaseName}.[dbo].{tblName} ";
+            SqlDataAdapter adapter = new(query, connection);
 
-        connection.Open();
-        adapter.Fill(dataTable);
+            connection.Open();
+            adapter.Fill(dataTable);
+        }
         return dataTable;
     }
 

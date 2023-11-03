@@ -96,7 +96,7 @@ namespace Marina.UI.Migrations
                     Salt = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
-                    CreateDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValue: new DateTime(2023, 10, 29, 22, 25, 16, 523, DateTimeKind.Local).AddTicks(4532)),
+                    CreateDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValue: new DateTime(2023, 11, 3, 11, 5, 20, 552, DateTimeKind.Local).AddTicks(3477)),
                     UpdaterUserId = table.Column<long>(type: "bigint", nullable: true),
                     UpdateTime = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
@@ -121,6 +121,16 @@ namespace Marina.UI.Migrations
                         principalTable: "Province",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "Distributor",
+                columns: new[] { "Id", "Code" },
+                values: new object[,]
+                {
+                    { 1, "D1" },
+                    { 2, "D2" },
+                    { 3, "D3" }
                 });
 
             migrationBuilder.InsertData(
@@ -160,6 +170,11 @@ namespace Marina.UI.Migrations
                     { 2, "R2" },
                     { 3, "R3" }
                 });
+
+            migrationBuilder.InsertData(
+                table: "User",
+                columns: new[] { "Id", "CreateDate", "DistributorId", "DistributorName", "IsActive", "LineId", "PasswordHash", "PhoneNumber", "ProvinceId", "RSMId", "RegionId", "Salt", "UpdateTime", "UpdaterUserId", "UserName" },
+                values: new object[] { 1, new DateTime(2023, 11, 3, 11, 5, 20, 552, DateTimeKind.Local).AddTicks(4041), 1, "admin", true, 1, "Gco+uHGl5M4H2AXm7UqdfBz/VrFZrLUQiXy9tU9f9d8=", "0901", 1, 1, 1, "wJ8Ddinmsj1ZLo5+J9N0FvchZRgOeGlRLDKIIZu3KAs=", null, null, "admin" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_User_DistributorId",

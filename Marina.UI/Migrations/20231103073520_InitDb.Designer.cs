@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Marina.UI.Migrations
 {
     [DbContext(typeof(MarinaDbContext))]
-    [Migration("20231029185516_Init-Db")]
+    [Migration("20231103073520_InitDb")]
     partial class InitDb
     {
         /// <inheritdoc />
@@ -41,6 +41,23 @@ namespace Marina.UI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Distributor", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Code = "D1"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Code = "D2"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Code = "D3"
+                        });
                 });
 
             modelBuilder.Entity("Marina.UI.Models.Entities.Line", b =>
@@ -184,7 +201,7 @@ namespace Marina.UI.Migrations
                     b.Property<DateTime>("CreateDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2023, 10, 29, 22, 25, 16, 523, DateTimeKind.Local).AddTicks(4532));
+                        .HasDefaultValue(new DateTime(2023, 11, 3, 11, 5, 20, 552, DateTimeKind.Local).AddTicks(3477));
 
                     b.Property<int>("DistributorId")
                         .HasColumnType("int");
@@ -251,6 +268,25 @@ namespace Marina.UI.Migrations
                     b.HasIndex("ProvinceId");
 
                     b.ToTable("User", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreateDate = new DateTime(2023, 11, 3, 11, 5, 20, 552, DateTimeKind.Local).AddTicks(4041),
+                            DistributorId = 1,
+                            DistributorName = "admin",
+                            IsActive = true,
+                            IsDeleted = false,
+                            LineId = 1,
+                            PasswordHash = "Gco+uHGl5M4H2AXm7UqdfBz/VrFZrLUQiXy9tU9f9d8=",
+                            PhoneNumber = "0901",
+                            ProvinceId = 1,
+                            RSMId = 1,
+                            RegionId = 1,
+                            Salt = "wJ8Ddinmsj1ZLo5+J9N0FvchZRgOeGlRLDKIIZu3KAs=",
+                            UserName = "admin"
+                        });
                 });
 
             modelBuilder.Entity("Marina.UI.Models.Entities.User", b =>

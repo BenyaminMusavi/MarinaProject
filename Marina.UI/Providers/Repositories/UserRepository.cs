@@ -28,7 +28,7 @@ public class UserRepository : IUserRepository
 
     public CookieUserItem Validate(LoginVm model)
     {
-        var userRecords = _db.Users.Where(x => x.UserName == model.Username && x.IsActive).Include(x=>x.Distributor).Include(x=>x.Line).Include(x=>x.Province);
+        var userRecords = _db.Users.Where(x => x.UserName == model.Username && x.IsActive).Include(x => x.Distributor).Include(x => x.Line).Include(x => x.Province);
 
         var results = userRecords.AsEnumerable()
         .Where(m => m.PasswordHash == Hasher.GenerateHash(model.Password, m.Salt))
@@ -64,48 +64,54 @@ public class UserRepository : IUserRepository
     //}
     public async Task<bool> Register(RegisterVm model)
     {
-        var currentUser = await _db.Users.SingleOrDefaultAsync(x => x.PhoneNumber == model.PhoneNumber);
-        if (currentUser is null)
-            return false;
-        if (!currentUser.IsActive)
-            return false;
-        //if (currentUser.UserName == model.UserName || currentUser.DistributorName == model.DistributorName)
+        //var currentUser = await _db.Users.SingleOrDefaultAsync(x => x.PhoneNumber == model.PhoneNumber);
+        //if (currentUser is null)
         //    return false;
+        //if (!currentUser.IsActive)
+        //    return false;
+        var userRecords = await _db.Users.Where(x => x.UserName == model.UserName.Trim()).FirstOrDefaultAsync();
+
+        if (userRecords is not null)
+            return false;
+
         var salt = Hasher.GenerateSalt();
         var hashedPassword = Hasher.GenerateHash(model.Password, salt);
 
-        var user = FromUserRegistrationModelToUser(model, currentUser, hashedPassword, salt);
+        var user = FromUserRegistrationModelToUser(model, hashedPassword, salt);
 
-        _db.Users.Update(user);
+        await _db.Users.AddAsync(user);
         await _db.SaveChangesAsync();
 
         return true;
     }
 
-    private static User FromUserRegistrationModelToUser(RegisterVm userRegistration, User user, string hashedPassword, string salt)
+    private static User FromUserRegistrationModelToUser(RegisterVm userRegistration, string hashedPassword, string salt)
     {
-        user.DistributorName = userRegistration.DistributorName;
-        user.RegionId = userRegistration.RegionId;
-        user.RSMId = userRegistration.RSMId;
-        user.UserName = userRegistration.UserName;
-        user.DistributorId = userRegistration.DistributorId;
-        user.LineId = userRegistration.LineId;
-        user.ProvinceId = userRegistration.ProvinceId;
-        user.PasswordHash = hashedPassword;
-        user.Salt = salt;
-        user.UpdateTime = DateTime.Now;
-        //return new User
-        //{
-        //    DistributorName = userRegistration.DistributorName,
-        //    RegionId = userRegistration.RegionId,
-        //    PasswordHash = hashedPassword,
-        //    Salt = salt,
-        //    UserName = userRegistration.UserName,
-        //    RSMId = userRegistration.RSMId,
-        //    LineId = userRegistration.LineId,
-        //    ProvinceId = userRegistration.ProvinceId,
-        //};
-        return user;
+        //user.DistributorName = userRegistration.DistributorName;
+        //user.RegionId = userRegistration.RegionId;
+        //user.RSMId = userRegistration.RSMId;
+        //user.UserName = userRegistration.UserName;
+        //user.DistributorId = userRegistration.DistributorId;
+        //user.LineId = userRegistration.LineId;
+        //user.ProvinceId = userRegistration.ProvinceId;
+        //user.PasswordHash = hashedPassword;
+        //user.Salt = salt;
+        //user.UpdateTime = DateTime.Now;
+        return new User
+        {
+            DistributorName = userRegistration.DistributorName,
+            RegionId = userRegistration.RegionId,
+            PasswordHash = hashedPassword,
+            Salt = salt,
+            UserName = userRegistration.UserName,
+            RSMId = userRegistration.RSMId,
+            LineId = userRegistration.LineId,
+            ProvinceId = userRegistration.ProvinceId,
+            DistributorId = userRegistration.DistributorId,
+            PhoneNumber = userRegistration.PhoneNumber,
+
+        };
+        //return user;
     }
 
     public async Task<List<UserDto>> GetAll()
