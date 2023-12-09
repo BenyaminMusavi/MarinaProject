@@ -1,144 +1,91 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ActionConstraints;
-using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+﻿using Microsoft.Data.SqlClient;
 using System.Data;
-using System.Transactions;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Marina.UI.Providers.Repositories;
 
 public interface IImportRepository
 {
-    string CheckTable(string tableName);
-    Task<bool> SaveToDataBase(DataTable dt);
-    DataTable GetAll();
+    Task<bool> TableExists(string tableName);
+    Task<bool> SaveToDatabase(DataTable dt);
+    Task<DataTable> GetAll();
 }
 
 public class ImportRepository : IImportRepository
 {
-    private readonly IConfiguration _configuration;
-    private string DESCId = "";
-    private readonly string tblName = "";
-    private readonly string connectionString = "";
-    private readonly string databaseName = "";
+    private readonly string tblName;
+    private readonly string? connectionString;
+    private readonly string? databaseName;
+
     public ImportRepository(IConfiguration configuration)
     {
-        _configuration = configuration;
-        connectionString = _configuration.GetConnectionString("MarinaConnectionString");
-        tblName = Helper.SetNameDb();
-        databaseName = _configuration.GetValue<string>("Database:Name");
+        connectionString = configuration.GetConnectionString("MarinaConnectionString");
+        tblName = Helper.SetTableName();
+        databaseName = configuration.GetValue<string>("Database:Name");
     }
 
-    public string CheckTable(string tableName)
+    public async Task<bool> TableExists(string tableName)
     {
         using SqlConnection connection = new(connectionString);
         connection.Open();
-        //SqlTransaction transaction = connection.BeginTransaction();
-        try
-        {
-            tableName = "jnjk";
-            //var query = $"SELECT TOP (1) * FROM {databaseName}.[dbo].{tableName} ORDER BY Id DESC ";
-            var query = $"IF EXISTS (SELECT TOP (1) * FROM {databaseName}.[dbo].{tableName} ) SELECT TOP (1) * FROM {databaseName}.[dbo].{tableName} ELSE SELECT 'Table does not exist.';";
-            SqlCommand command = new(query, connection);
-            var reader = command.ExecuteReader();
-            string result = null;
-            if (reader.HasRows)
-            {
-                reader.Read();
-                result = reader.GetString(1);
-            }
-            reader.Close();
-            //transaction.Commit();
-            return result;
-        }
-        catch (Exception ex)
-        {
-            //transaction.Rollback();
-            Console.WriteLine("خطا در اجرای کوئری: " + ex.Message);
-            return null;
-        }
+
+        var query = $"SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{tableName}'";
+        SqlCommand command = new(query, connection);
+        var result = await command.ExecuteScalarAsync();
+
+        return result != null;
     }
 
-    public async Task<bool> SaveToDataBase(DataTable dataTable)
+    public async Task<bool> SaveToDatabase(DataTable dataTable)
     {
         using SqlConnection con = new(connectionString);
-        DESCId = CheckTable(tblName);
+        var tableExists = await TableExists(tblName);
         try
         {
             con.Open();
-            //SqlTransaction transaction = con.BeginTransaction();
-            if (DESCId is null)
+            if (!tableExists)
             {
                 string query = Helper.CreateData(dataTable, databaseName, tblName);
-                SqlCommand command = new(query, con); //transaction
+                SqlCommand command = new(query, con);
                 command.ExecuteNonQuery();
-                using (SqlBulkCopy bulkCopy = new(con))
-                {
-                    foreach (var column in dataTable.Columns)
-                    {
-                        bulkCopy.DestinationTableName = tblName;
-                        Helper.ColumnMapping(dataTable, bulkCopy);
-                        bulkCopy.WriteToServer(dataTable);
-                    }
-                };
-                con.Close();
-                //transaction.Commit();
+            }
 
-            }
-            else
+            var Date = Helper.GetPersianDate();
+            var queryDeleted = $"DELETE FROM {tblName} WHERE PerDate = @Date";
+            SqlCommand commandDeleted = new(queryDeleted, con);
+            commandDeleted.Parameters.AddWithValue("@Date", Date);
+            var rowsAffected = commandDeleted.ExecuteNonQuery();
+
+            using (SqlBulkCopy bulkCopy = new(con))
             {
-                var Date = Helper.GetPersianDate();
-                string queryDeleted = $"DELETE FROM {tblName} WHERE PerDate = @Date";
-                SqlCommand command = new(queryDeleted, con);
-                command.Parameters.AddWithValue("@Date", Date);
-                con.Open();
-                var rowsAffected = command.ExecuteNonQuery();
-                using (SqlBulkCopy bulkCopy = new(con))
-                {
-                    bulkCopy.DestinationTableName = tblName;
-                    Helper.ColumnMapping(dataTable, bulkCopy);
-                    bulkCopy.WriteToServer(dataTable);
-                };
-                con.Close();
-                //transaction.Commit();
+                bulkCopy.DestinationTableName = tblName;
+                Helper.ColumnMapping(dataTable, bulkCopy);
+                await bulkCopy.WriteToServerAsync(dataTable);
             }
+
+            con.Close();
         }
         catch (Exception ex)
         {
-            //transaction.Commit();
-            throw;
+            Console.WriteLine("خطا در ذخیره سازی داده ها: " + ex.Message);
+            return false;
         }
         return true;
     }
 
-    public DataTable GetAll()
+    public async Task<DataTable> GetAll()
     {
-        DESCId = CheckTable(tblName);
+        var tableExists = await TableExists(tblName);
         DataTable dataTable = new();
-        if (DESCId is not null)
+        if (tableExists)
         {
             using SqlConnection connection = new(connectionString);
-
-            var query = $"SELECT * FROM {databaseName}.[dbo].{tblName} ";
-            SqlDataAdapter adapter = new(query, connection);
-
-            connection.Open();
-            adapter.Fill(dataTable);
+            {
+                connection.Open();
+                var query = $"SELECT * FROM {databaseName}.[dbo].{tblName}";
+                SqlDataAdapter adapter = new(query, connection);
+                adapter.Fill(dataTable);
+            }
         }
         return dataTable;
     }
-
-    //public async Task<DataTable> GetAllAsync()
-    //{
-    //    using SqlConnection connection = new(connectionString);
-    //    DataTable dataTable = new();
-
-    //    var query = $"SELECT * FROM {databaseName}.[dbo].{tblName} ";
-    //    SqlDataAdapter adapter = new(query, connection);
-
-    //    await connection.OpenAsync();
-    //    await adapter.FillAsync(dataTable);
-    //    return dataTable;
-    //}
 }

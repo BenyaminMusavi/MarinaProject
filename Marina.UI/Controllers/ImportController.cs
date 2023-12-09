@@ -16,11 +16,9 @@ namespace Marina.UI.Controllers;
 [Authorize]
 public class ImportController : Controller
 {
-    private readonly IConfiguration _configuration;
-    private IImportRepository _ImportRepository;
-    public ImportController(IConfiguration configuration, IImportRepository importRepository)
+    private readonly IImportRepository _ImportRepository;
+    public ImportController(IImportRepository importRepository)
     {
-        _configuration = configuration;
         _ImportRepository = importRepository;
     }
 
@@ -30,34 +28,36 @@ public class ImportController : Controller
     }
 
     [HttpPost]
-    public IActionResult Index(IFormFile upload)
+    public async Task<IActionResult> Index(IFormFile upload)
     {
         if (ModelState.IsValid)
         {
             if (upload != null && upload.Length > 0)
             {
-                Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-                Stream stream = upload.OpenReadStream();
-                IExcelDataReader reader;
-                if (upload.FileName.EndsWith(".xls"))
+                if (upload.FileName.EndsWith(".xls") || upload.FileName.EndsWith(".xlsx"))
                 {
-                    reader = ExcelReaderFactory.CreateBinaryReader(stream);
-                }
-                else if (upload.FileName.EndsWith(".xlsx"))
-                {
-                    reader = ExcelReaderFactory.CreateOpenXmlReader(stream);
+                    Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+                    Stream stream = upload.OpenReadStream();
+                    IExcelDataReader reader;
+                    if (upload.FileName.EndsWith(".xls"))
+                    {
+                        reader = ExcelReaderFactory.CreateBinaryReader(stream);
+                    }
+                    else
+                    {
+                        reader = ExcelReaderFactory.CreateOpenXmlReader(stream);
+                    }
+
+                    DataTable dt = CreateDataTable(reader);
+
+                    await _ImportRepository.SaveToDatabase(dt);
+
+                    return View(dt);
                 }
                 else
                 {
-                    ModelState.AddModelError("File", "This file format is not support");
-                    return View();
+                    ModelState.AddModelError("File", "This file format is not supported");
                 }
-
-                DataTable dt = CreateDataTable(reader);
-
-                _ImportRepository.SaveToDataBase(dt);
-
-                return View(dt);
             }
             else
             {
@@ -103,4 +103,4 @@ public class ImportController : Controller
         reader.Dispose();
         return dt;
     }
- }
+}

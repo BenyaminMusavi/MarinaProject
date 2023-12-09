@@ -1,11 +1,9 @@
-﻿using Marina.UI.Models.Entities;
-using Marina.UI.Models.ViewModels;
+﻿using Marina.UI.Models.ViewModels;
 using Marina.UI.Providers;
 using Marina.UI.Providers.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Security.Claims;
 
 namespace Marina.UI.Controllers;
 

@@ -33,9 +33,9 @@ public class HomeController : Controller
     //}
 
     [Authorize]
-    public IActionResult Index(int? page, int pageSize = 25)
+    public async Task<IActionResult> Index(int? page, int pageSize = 25)
     {
-        var model = _importRepository.GetAll();
+        var model = await _importRepository.GetAll();
         List<DataRow> rows = model.AsEnumerable().ToList();
 
         //if (TempData["DataRows"] != null && TempData["DataRows"] is List<DataRow> tempRows && tempRows.SequenceEqual(rows))
@@ -63,8 +63,5 @@ public class HomeController : Controller
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
-
-
-
 
 }

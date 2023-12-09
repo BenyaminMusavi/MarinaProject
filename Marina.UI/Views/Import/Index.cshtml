@@ -34,9 +34,13 @@
                 <table>
                     <thead>
                         <tr>
-                            @foreach (DataColumn col in Model.Columns)
+                            @*   @foreach (DataColumn col in Model.Columns)
+                    {
+                    <th>@col.ColumnName</th>
+                    }*@
+                            @for (int i = 1; i < Model.Columns.Count; i++)
                             {
-                                <th>@col.ColumnName</th>
+                                <th>@Model.Columns[i].ColumnName</th>
                             }
                         </tr>
                     </thead>
@@ -44,9 +48,14 @@
                         @foreach (DataRow row in Model.Rows)
                         {
                             <tr>
-                                @foreach (DataColumn col in Model.Columns)
+                          @*      @foreach (DataColumn col in Model.Columns)
                                 {
                                     <td>@row[col.ColumnName]</td>
+                                }
+*@
+                                @for (int i = 1; i < Model.Columns.Count; i++)
+                                {
+                                    <td>@row[Model.Columns[i].ColumnName]</td>
                                 }
                             </tr>
                         }

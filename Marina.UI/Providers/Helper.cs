@@ -27,7 +27,7 @@ public static class Helper
         return $"{year}{month}";
     }
 
-    public static string SetNameDb()
+    public static string SetTableName()
     {
         var httpContextAccessor = new HttpContextAccessor();
         var province = httpContextAccessor.HttpContext?.User.FindFirstValue("Province");
