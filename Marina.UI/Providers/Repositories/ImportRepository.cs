@@ -44,7 +44,7 @@ public class ImportRepository : IImportRepository
             con.Open();
             if (!tableExists)
             {
-                string query = Helper.CreateData(dataTable, databaseName, tblName);
+                var query = Helper.CreateData(dataTable, databaseName, tblName);
                 SqlCommand command = new(query, con);
                 command.ExecuteNonQuery();
             }

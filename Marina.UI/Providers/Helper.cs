@@ -41,17 +41,22 @@ public static class Helper
     {
         try
         {
-            foreach (var column in dataTable.Columns)
+            //foreach (var column in dataTable.Columns)
+            //{
+            //    var sourceColumn = column.ToString();
+            //    var destinationColumn = column.ToString().Replace(" ", "");
+            //    bulkCopy.ColumnMappings.Add(sourceColumn, destinationColumn);
+            //}
+            foreach (DataColumn column in dataTable.Columns)
             {
-                var sourceColumn = column.ToString();
-                var destinationColumn = column.ToString().Replace(" ", "");
+                var sourceColumn = column.ColumnName;
+                var destinationColumn = column.ColumnName.Replace(" ", "");
                 bulkCopy.ColumnMappings.Add(sourceColumn, destinationColumn);
             }
         }
         catch (Exception ex)
         {
-
-            throw;
+            throw new Exception("Error mapping columns: " + ex.Message);
         }
     }
 
