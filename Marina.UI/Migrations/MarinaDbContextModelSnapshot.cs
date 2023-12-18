@@ -187,6 +187,36 @@ namespace Marina.UI.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Marina.UI.Models.Entities.Supervisor", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Supervisor", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Mohammadian"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Mousavi"
+                        });
+                });
+
             modelBuilder.Entity("Marina.UI.Models.Entities.User", b =>
                 {
                     b.Property<int>("Id")
@@ -198,15 +228,15 @@ namespace Marina.UI.Migrations
                     b.Property<DateTime>("CreateDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2023, 11, 3, 11, 5, 20, 552, DateTimeKind.Local).AddTicks(3477));
+                        .HasDefaultValue(new DateTime(2023, 12, 16, 0, 42, 11, 972, DateTimeKind.Local).AddTicks(2472));
 
-                    b.Property<int>("DistributorId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("DistributorName")
+                    b.Property<string>("DName")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("DistributorId")
+                        .HasColumnType("int");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
@@ -244,6 +274,9 @@ namespace Marina.UI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("SupervisorId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("UpdateTime")
                         .HasColumnType("datetime2");
 
@@ -264,15 +297,21 @@ namespace Marina.UI.Migrations
 
                     b.HasIndex("ProvinceId");
 
+                    b.HasIndex("RSMId");
+
+                    b.HasIndex("RegionId");
+
+                    b.HasIndex("SupervisorId");
+
                     b.ToTable("User", (string)null);
 
                     b.HasData(
                         new
                         {
                             Id = 1,
-                            CreateDate = new DateTime(2023, 11, 3, 11, 5, 20, 552, DateTimeKind.Local).AddTicks(4041),
+                            CreateDate = new DateTime(2023, 12, 16, 0, 42, 11, 972, DateTimeKind.Local).AddTicks(3193),
+                            DName = "admin",
                             DistributorId = 1,
-                            DistributorName = "admin",
                             IsActive = true,
                             IsDeleted = false,
                             LineId = 1,
@@ -282,6 +321,7 @@ namespace Marina.UI.Migrations
                             RSMId = 1,
                             RegionId = 1,
                             Salt = "wJ8Ddinmsj1ZLo5+J9N0FvchZRgOeGlRLDKIIZu3KAs=",
+                            SupervisorId = 1,
                             UserName = "admin"
                         });
                 });
@@ -306,11 +346,35 @@ namespace Marina.UI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Marina.UI.Models.Entities.RSM", "RSM")
+                        .WithMany()
+                        .HasForeignKey("RSMId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Marina.UI.Models.Entities.Region", "Region")
+                        .WithMany()
+                        .HasForeignKey("RegionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Marina.UI.Models.Entities.Supervisor", "Supervisor")
+                        .WithMany()
+                        .HasForeignKey("SupervisorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Distributor");
 
                     b.Navigation("Line");
 
                     b.Navigation("Province");
+
+                    b.Navigation("RSM");
+
+                    b.Navigation("Region");
+
+                    b.Navigation("Supervisor");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,4 +1,5 @@
-﻿using Marina.UI.Models.ViewModels;
+﻿using FluentValidation.Results;
+using Marina.UI.Models.ViewModels;
 using Marina.UI.Providers;
 using Marina.UI.Providers.Repositories;
 using Microsoft.AspNetCore.Authorization;
@@ -54,24 +55,49 @@ public class AccountController : Controller
     [AllowAnonymous]
     public async Task<IActionResult> Login(LoginVm model)
     {
-
         if (!ModelState.IsValid)
             return View(model);
 
-        var user = _userRepository.Validate(model);
-
-        if (user == null) return View(model);
-
-        if (user.UserId == 1)
+        LoginValidator validator = new();
+        ValidationResult result = validator.Validate(model);
+        if (result.IsValid)
         {
-   
+            var user = _userRepository.Validate(model);
+            if (user == null) return View(model);
+
+            if (user.UserId == 1)
+            {
+                await _userManager.SignIn(this.HttpContext, user, false);
+                return LocalRedirect("~/Account/list");
+            }
             await _userManager.SignIn(this.HttpContext, user, false);
-            return LocalRedirect("~/Account/list");
+            return LocalRedirect("~/");
         }
-        await _userManager.SignIn(this.HttpContext, user, false);
-        return LocalRedirect("~/");
+        else
+        {
+            foreach (ValidationFailure failer in result.Errors)
+            {
+                ModelState.AddModelError(failer.PropertyName, failer.ErrorMessage);
+            }
+        }
+        return View(model);
 
     }
+    //[HttpPost]
+    //public ActionResult Create(ProductViewModel model)
+    //{
+    //    var validator = new ProductViewModelValidator();
+    //    var result = validator.Validate(model);
+    //    result.AddToModelState(ModelState, null); // اضافه کردن پیام‌های خطا به مدل
+
+    //    if (!ModelState.IsValid)
+    //    {
+    //        // انجام عملیات مورد نیاز در صورت عدم اعتبارسنجی موفق
+    //    }
+    //    // ...
+    //}
+
+
     [AllowAnonymous]
     public async Task<IActionResult> Register()
     {

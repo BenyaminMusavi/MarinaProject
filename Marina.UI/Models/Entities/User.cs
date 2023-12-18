@@ -7,13 +7,14 @@ public partial class User
 {
     [Key]
     public int Id { get; set; }
-    public string DistributorName { get; set; } = null!;
+    public string DName { get; set; } = null!;
     public int RegionId { get; set; }
     public int RSMId { get; set; }
     public string UserName { get; set; } = null!;
     public int DistributorId { get; set; }
     public int LineId { get; set; }
     public int ProvinceId { get; set; }
+    public int SupervisorId { get; set; }
     public string PhoneNumber { get; set; }
     public string PasswordHash { get; set; } = null!;
     public string Salt { get; set; } = null!;
@@ -29,6 +30,9 @@ public partial class User
     public virtual Distributor Distributor { get; set; }
     public virtual Line Line { get; set; }
     public virtual Province Province { get; set; }
+    public virtual Supervisor Supervisor { get; set; }
+    public virtual Region Region { get; set; }
+    public virtual RSM RSM { get; set; }
 }
 
 public partial class Region
@@ -60,6 +64,13 @@ public partial class Line
 }
 
 public partial class Province
+{
+    [Key]
+    public int Id { get; set; }
+    public string Name { get; set; } = null!;
+}
+
+public partial class Supervisor
 {
     [Key]
     public int Id { get; set; }

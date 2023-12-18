@@ -38,7 +38,7 @@
                     {
                     <th>@col.ColumnName</th>
                     }*@
-                            @for (int i = 1; i < Model.Columns.Count; i++)
+                            @for (int i = 2; i < Model.Columns.Count; i++)
                             {
                                 <th>@Model.Columns[i].ColumnName</th>
                             }
@@ -53,7 +53,7 @@
                                     <td>@row[col.ColumnName]</td>
                                 }
 *@
-                                @for (int i = 1; i < Model.Columns.Count; i++)
+                                @for (int i = 2; i < Model.Columns.Count; i++)
                                 {
                                     <td>@row[Model.Columns[i].ColumnName]</td>
                                 }

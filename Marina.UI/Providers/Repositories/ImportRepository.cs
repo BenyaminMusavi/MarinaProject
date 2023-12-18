@@ -1,4 +1,5 @@
 ﻿using Microsoft.Data.SqlClient;
+using Microsoft.Identity.Client;
 using System.Data;
 
 namespace Marina.UI.Providers.Repositories;
@@ -35,41 +36,112 @@ public class ImportRepository : IImportRepository
         return result != null;
     }
 
+    //public async Task<bool> SaveToDatabase(DataTable dataTable)
+    //{
+    //    using SqlConnection con = new(connectionString);
+    //    var tableExists = await TableExists(tblName);
+    //    using SqlBulkCopy bulkCopy = new(con);
+    //    try
+    //    {
+    //        bool isValidColumnMapping = true;
+    //        con.Open();
+
+    //        if (tableExists)
+    //        {
+    //            var destinationColumnName = SelectColumnNameTable(tblName);
+    //            bulkCopy.DestinationTableName = tblName;
+    //            isValidColumnMapping = Helper.ColumnMapping(dataTable, bulkCopy, destinationColumnName);
+    //        }
+
+    //        if (!tableExists)
+    //        {
+    //            var query = Helper.CreateData(dataTable, databaseName, tblName);
+    //            SqlCommand command = new(query, con);
+    //            command.ExecuteNonQuery();
+    //        }
+
+    //        var Date = Helper.GetPersianDate();
+    //        var queryDeleted = $"DELETE FROM {tblName} WHERE PerDate = @Date";
+    //        SqlCommand commandDeleted = new(queryDeleted, con);
+    //        commandDeleted.Parameters.AddWithValue("@Date", Date);
+    //        var rowsAffected = commandDeleted.ExecuteNonQuery();
+
+    //        if (isValidColumnMapping)
+    //            await bulkCopy.WriteToServerAsync(dataTable);
+    //        else
+    //            return false;
+
+    //        con.Close();
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        Console.WriteLine("خطا در ذخیره سازی داده ها: " + ex.Message);
+    //        return false;
+    //    }
+    //    return true;
+    //}
+
     public async Task<bool> SaveToDatabase(DataTable dataTable)
     {
-        using SqlConnection con = new(connectionString);
-        var tableExists = await TableExists(tblName);
-        try
+        using (SqlConnection con = new(connectionString))
         {
-            con.Open();
-            if (!tableExists)
-            {
-                var query = Helper.CreateData(dataTable, databaseName, tblName);
-                SqlCommand command = new(query, con);
-                command.ExecuteNonQuery();
-            }
-
-            var Date = Helper.GetPersianDate();
-            var queryDeleted = $"DELETE FROM {tblName} WHERE PerDate = @Date";
-            SqlCommand commandDeleted = new(queryDeleted, con);
-            commandDeleted.Parameters.AddWithValue("@Date", Date);
-            var rowsAffected = commandDeleted.ExecuteNonQuery();
-
+            var tableExists = await TableExists(tblName);
             using (SqlBulkCopy bulkCopy = new(con))
             {
-                bulkCopy.DestinationTableName = tblName;
-                Helper.ColumnMapping(dataTable, bulkCopy);
-                await bulkCopy.WriteToServerAsync(dataTable);
-            }
+                try
+                {
+                    bool isValidColumnMapping = true;
+                    con.Open();
 
-            con.Close();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("خطا در ذخیره سازی داده ها: " + ex.Message);
-            return false;
+                    if (tableExists)
+                    {
+                        var destinationColumnName = SelectColumnNameTable(tblName);
+                        bulkCopy.DestinationTableName = tblName;
+                        isValidColumnMapping = Helper.ColumnMapping(dataTable, bulkCopy, destinationColumnName);
+                    }
+                    if (!isValidColumnMapping)
+                        return false;
+
+                    if (!tableExists)
+                    {
+                        var query = Helper.CreateData(dataTable, databaseName, tblName);
+                        using (SqlCommand command = new(query, con))
+                        {
+                            command.ExecuteNonQuery();
+                        }
+                    }
+
+                    var Date = Helper.GetPersianDate();
+                    var queryDeleted = $"DELETE FROM {tblName} WHERE PerDate = @Date";
+                    using (SqlCommand commandDeleted = new(queryDeleted, con))
+                    {
+                        commandDeleted.Parameters.AddWithValue("@Date", Date);
+                        var rowsAffected = commandDeleted.ExecuteNonQuery();
+                    }
+
+                    await bulkCopy.WriteToServerAsync(dataTable);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("خطا در ذخیره سازی داده ها: " + ex.Message);
+                    return false;
+                }
+            }
         }
         return true;
+    }
+
+
+    private List<string> SelectColumnNameTable(string tblName)
+    {
+        using var connection = new SqlConnection(connectionString);
+        connection.Open();
+        var command = new SqlCommand($"SELECT * FROM {tblName}", connection);
+        var reader = command.ExecuteReader();
+        var columnNames = Enumerable.Range(0, reader.FieldCount)
+            .Select(i => reader.GetName(i))
+            .ToList();
+        return columnNames;
     }
 
     public async Task<DataTable> GetAll()

@@ -37,7 +37,7 @@ public static class Helper
         return tblName;
     }
 
-    public static void ColumnMapping(DataTable dataTable, SqlBulkCopy bulkCopy)
+    public static bool ColumnMapping(DataTable dataTable, SqlBulkCopy bulkCopy, List<string> destinationColumnNames)
     {
         try
         {
@@ -49,10 +49,14 @@ public static class Helper
             //}
             foreach (DataColumn column in dataTable.Columns)
             {
-                var sourceColumn = column.ColumnName;
-                var destinationColumn = column.ColumnName.Replace(" ", "");
-                bulkCopy.ColumnMappings.Add(sourceColumn, destinationColumn);
+                var sourceColumn = column.ColumnName.Replace(" ", "");
+                var isValid = destinationColumnNames.Contains(sourceColumn);
+                if (isValid)
+                    bulkCopy.ColumnMappings.Add(sourceColumn, sourceColumn);
+                else
+                    return false;
             }
+            return true;
         }
         catch (Exception ex)
         {

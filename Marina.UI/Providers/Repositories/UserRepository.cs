@@ -2,6 +2,7 @@
 using Marina.UI.Models.Entities;
 using Marina.UI.Models.ViewModels;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 
@@ -29,7 +30,7 @@ public class UserRepository : IUserRepository
     public CookieUserItem Validate(LoginVm model)
     {
         var userRecords = _db.Users.Where(x => x.UserName == model.Username && x.IsActive).Include(x => x.Distributor).Include(x => x.Line).Include(x => x.Province);
-
+        
         var results = userRecords.AsEnumerable()
         .Where(m => m.PasswordHash == Hasher.GenerateHash(model.Password, m.Salt))
         .Select(m => new CookieUserItem
@@ -43,7 +44,7 @@ public class UserRepository : IUserRepository
 
         return results.FirstOrDefault();
     }
-
+    
     //public CookieUserItem Register(RegisterVm model)
     //{
     //    var salt = Hasher.GenerateSalt();
@@ -99,7 +100,7 @@ public class UserRepository : IUserRepository
         //user.UpdateTime = DateTime.Now;
         return new User
         {
-            DistributorName = userRegistration.DistributorName,
+            DName = userRegistration.DistributorName,
             RegionId = userRegistration.RegionId,
             PasswordHash = hashedPassword,
             Salt = salt,
@@ -119,7 +120,7 @@ public class UserRepository : IUserRepository
         return await _db.Users.Select(x => new UserDto
         {
             Id = x.Id,
-            DistributorName = x.DistributorName,
+            DistributorName = x.DName,
             RegionId = x.RegionId,
             RSMId = x.RSMId,
             DistributorId = x.DistributorId,

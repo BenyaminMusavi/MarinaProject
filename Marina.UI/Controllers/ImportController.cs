@@ -1,15 +1,11 @@
 ﻿using System.Data;
 using System.Security.Claims;
 using System.Text;
-using System.Text.Json;
 using ExcelDataReader;
 using Marina.UI.Providers;
 using Marina.UI.Providers.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Marina.UI.Controllers;
 
@@ -74,23 +70,26 @@ public class ImportController : Controller
         DataRow row;
         DataTable dt_ = new();
         var Date = Helper.GetPersianDate();
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
         try
         {
             dt_ = reader.AsDataSet().Tables[0];
+            dt.Columns.Add("UserId");
             dt.Columns.Add("PerDate");
             for (int i = 0; i < dt_.Columns.Count; i++)
             {
                 dt.Columns.Add(dt_.Rows[0][i].ToString());
             }
-            for (int row_ = 1; row_ < dt_.Rows.Count; row_++)
+            for (int row_ = 0; row_ < dt_.Rows.Count; row_++)
             {
                 row = dt.NewRow();
+                row["UserId"] = userId;
                 row["PerDate"] = Date;
 
                 for (int col = 0; col < dt_.Columns.Count; col++)
                 {
-                    row[col + 1] = dt_.Rows[row_][col].ToString();
+                    row[col + 2] = dt_.Rows[row_][col].ToString();
                 }
                 dt.Rows.Add(row);
             }

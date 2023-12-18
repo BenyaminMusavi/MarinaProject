@@ -2,9 +2,6 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using System.Security.Principal;
 
 namespace Marina.UI.Providers;
 
@@ -61,7 +58,7 @@ public class UserManager : IUserManager
         await httpContext.ChallengeAsync(CookieAuthenticationDefaults.AuthenticationScheme);
     }
 
-    private List<Claim> GetUserClaims(CookieUserItem user)
+    private static List<Claim> GetUserClaims(CookieUserItem user)
     {
         List<Claim> claims = new List<Claim>
         {
