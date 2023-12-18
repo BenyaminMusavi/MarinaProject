@@ -77,6 +77,14 @@
                 </div>
 
                 <div class="form-outline mb-4">
+                    <label for="supervisor" class="form-label">Supervisor</label>
+                    @Html.DropDownListFor(model => model.SupervisorId,ViewBag.SupervisorList as SelectList ,"select a supervisor", new {style="height:40px;", @class = "form-control", id="supervisorId" })
+                    <div class="invalid-feedback">
+                        Please enter a valid supervisor.
+                    </div>
+                </div>
+
+                <div class="form-outline mb-4">
                     <label for="password" class="form-label">Password</label>
                     <input type="password" class="form-control" id="password" name="password" required>
                     <div class="invalid-feedback">

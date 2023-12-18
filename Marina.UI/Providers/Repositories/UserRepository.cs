@@ -110,6 +110,7 @@ public class UserRepository : IUserRepository
             ProvinceId = userRegistration.ProvinceId,
             DistributorId = userRegistration.DistributorId,
             PhoneNumber = userRegistration.PhoneNumber,
+            SupervisorId = userRegistration.SupervisorId
 
         };
         //return user;

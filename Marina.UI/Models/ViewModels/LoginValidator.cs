@@ -8,9 +8,7 @@ public class LoginValidator : AbstractValidator<LoginVm>
 {
     public LoginValidator()
     {
-        RuleFor(x => x.Username).NotEmpty().WithMessage("Username is required.")
-            .Must(username => username != "wrong_username")
-            .WithMessage("نام کاربری اشتباه است.");
+        RuleFor(x => x.Username).NotEmpty().WithMessage("Username is required.");
 
         //RuleFor(x => x.Password).NotEmpty().WithMessage("Password is required.");
 

@@ -18,10 +18,11 @@ public class AccountController : Controller
     private readonly IDistributorRepository _distributorRepository;
     private readonly ILineRepository _lineRepository;
     private readonly IProvinceRepository _provinceRepository;
+    private readonly ISupervisorRepository _supervisorRepository;
     public AccountController(IUserManager userManager, IUserRepository userRepository,
         IRegionRepository regionRepository, IRSMRepository rsmRepository,
         IDistributorRepository distributorRepository,
-        ILineRepository lineRepository, IProvinceRepository provinceRepository)
+        ILineRepository lineRepository, IProvinceRepository provinceRepository, ISupervisorRepository supervisorRepository)
     {
         _userManager = userManager;
         _userRepository = userRepository;
@@ -30,6 +31,7 @@ public class AccountController : Controller
         _distributorRepository = distributorRepository;
         _lineRepository = lineRepository;
         _provinceRepository = provinceRepository;
+        _supervisorRepository = supervisorRepository;
     }
 
     [Authorize(Roles = "admin")]
@@ -63,7 +65,12 @@ public class AccountController : Controller
         if (result.IsValid)
         {
             var user = _userRepository.Validate(model);
-            if (user == null) return View(model);
+            if (user == null)
+            {
+                ModelState.AddModelError("Username", "Please enter a valid username");
+                ModelState.AddModelError("Password", "Please enter a valid password");
+                return View(model);
+            }
 
             if (user.UserId == 1)
             {
@@ -118,6 +125,9 @@ public class AccountController : Controller
         var provinces = await _provinceRepository.GetAll();
         ViewBag.ProvinceList = new SelectList(provinces, "Id", "Name");
 
+        var supervisor = await _supervisorRepository.GetAll();
+        ViewBag.SupervisorList = new SelectList(supervisor, "Id", "Name");
+
         return View();
     }
 
@@ -152,6 +162,10 @@ public class AccountController : Controller
 
             var provinces = await _provinceRepository.GetAll();
             ViewBag.ProvinceList = new SelectList(provinces, "Id", "Name");
+
+            var supervisor = await _supervisorRepository.GetAll();
+            ViewBag.SupervisorList = new SelectList(supervisor, "Id", "Name");
+
             return View();
         }
     }

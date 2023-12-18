@@ -12,5 +12,6 @@ public class RegisterVm //: LoginVm
     public int RSMId { get; set; }
     public int DistributorId { get; set; }
     public string PhoneNumber { get; set; }
+    public int SupervisorId { get; set; }
 
 }

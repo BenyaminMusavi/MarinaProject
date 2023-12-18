@@ -13,17 +13,16 @@
                 <div class="form-outline mb-4">
                     <label for="username" class="form-label">Username</label>
                     <input type="text" class="form-control" id="username" name="username" required>
-                    <div class="invalid-feedback">
+                    @Html.ValidationMessageFor(model => model.Username, "", new { @class = "text-danger" })
+                 @*   <div class="invalid-feedback">
                         Please enter a valid username.
-                    </div>
+                    </div>*@
                 </div>
 
                 <div class="form-outline mb-4">
                     <label for="password" class="form-label">Password</label>
                     <input type="password" class="form-control" id="password" name="password" required>
-                    <div class="invalid-feedback">
-                        Please enter a valid password.
-                    </div>
+                    @Html.ValidationMessageFor(model => model.Password, "", new { @class = "text-danger" })
                 </div>
 
                 <div class="d-flex justify-content-between mb-4">
@@ -50,22 +49,21 @@
 
 
 
-            @*<form  id="login-form" class="was-validated">*@
+@*<form  id="login-form" class="was-validated">*@
 
 
 
 
 <script>
 
-@*    $(function () {
+    @*    $(function () {
         var validator = new LoginValidator();
 
         $('#login-form').submit(function (event) {
-            if (!validator.validate()) {
-                event.preventDefault();
-            }
+        if (!validator.validate()) {
+        event.preventDefault();
+        }
         });
-    });*@
+        });*@
 
 </script>
-
