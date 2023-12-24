@@ -1,4 +1,3 @@
-using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace Marina.UI.Models.Entities;
@@ -22,6 +21,7 @@ public partial class User
     #region  Audit Fiels 
     public bool IsDeleted { get; set; }
     public bool IsActive { get; set; }
+    public bool HasImported { get; set; } = false;
     public DateTime CreateDate { get; set; }
     public long? UpdaterUserId { get; set; }
     public DateTime? UpdateTime { get; set; }
@@ -30,7 +30,7 @@ public partial class User
     public virtual Distributor Distributor { get; set; }
     public virtual Line Line { get; set; }
     public virtual Province Province { get; set; }
-    public virtual Supervisor Supervisor { get; set; }
+    public virtual IList<Supervisor> Supervisor { get; set; }
     public virtual Region Region { get; set; }
     public virtual RSM RSM { get; set; }
 }
@@ -75,4 +75,7 @@ public partial class Supervisor
     [Key]
     public int Id { get; set; }
     public string Name { get; set; } = null!;
+    public string Email { get; set; } = null!;
+    public virtual IList<User> Users { get; set; }
+
 }

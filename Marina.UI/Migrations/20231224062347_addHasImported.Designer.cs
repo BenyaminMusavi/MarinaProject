@@ -4,6 +4,7 @@ using Marina.UI.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Marina.UI.Migrations
 {
     [DbContext(typeof(MarinaDbContext))]
-    partial class MarinaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231224062347_addHasImported")]
+    partial class addHasImported
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -234,7 +237,7 @@ namespace Marina.UI.Migrations
                     b.Property<DateTime>("CreateDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2023, 12, 24, 10, 20, 2, 772, DateTimeKind.Local).AddTicks(4823));
+                        .HasDefaultValue(new DateTime(2023, 12, 24, 9, 53, 46, 587, DateTimeKind.Local).AddTicks(4797));
 
                     b.Property<string>("DName")
                         .IsRequired()
@@ -316,7 +319,7 @@ namespace Marina.UI.Migrations
                         new
                         {
                             Id = 1,
-                            CreateDate = new DateTime(2023, 12, 24, 10, 20, 2, 772, DateTimeKind.Local).AddTicks(5618),
+                            CreateDate = new DateTime(2023, 12, 24, 9, 53, 46, 587, DateTimeKind.Local).AddTicks(5830),
                             DName = "admin",
                             DistributorId = 1,
                             HasImported = false,

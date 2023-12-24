@@ -120,6 +120,8 @@ public class ImportRepository : IImportRepository
                     }
 
                     await bulkCopy.WriteToServerAsync(dataTable);
+
+
                 }
                 catch (Exception ex)
                 {

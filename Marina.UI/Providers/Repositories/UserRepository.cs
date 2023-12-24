@@ -12,6 +12,7 @@ public interface IUserRepository
 {
     Task<bool> Delete(int id);
     Task<List<UserDto>> GetAll();
+    Task HasImported(int id);
 
     //CookieUserItem Register(RegisterVm model);  
     Task<bool> Register(RegisterVm model);
@@ -30,7 +31,7 @@ public class UserRepository : IUserRepository
     public CookieUserItem Validate(LoginVm model)
     {
         var userRecords = _db.Users.Where(x => x.UserName == model.Username && x.IsActive).Include(x => x.Distributor).Include(x => x.Line).Include(x => x.Province);
-        
+
         var results = userRecords.AsEnumerable()
         .Where(m => m.PasswordHash == Hasher.GenerateHash(model.Password, m.Salt))
         .Select(m => new CookieUserItem
@@ -44,7 +45,7 @@ public class UserRepository : IUserRepository
 
         return results.FirstOrDefault();
     }
-    
+
     //public CookieUserItem Register(RegisterVm model)
     //{
     //    var salt = Hasher.GenerateSalt();
@@ -158,4 +159,10 @@ public class UserRepository : IUserRepository
         return true;
     }
 
+    public async Task HasImported(int id)
+    {
+        var model = await _db.Users.FirstOrDefaultAsync(x => x.Id == id);
+        model.HasImported = true;
+        await _db.SaveChangesAsync();
+    }
 }

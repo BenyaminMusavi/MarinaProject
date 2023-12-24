@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using System.Text;
 using ExcelDataReader;
+using Marina.UI.Models.Entities;
 using Marina.UI.Providers;
 using Marina.UI.Providers.Repositories;
 using Microsoft.AspNetCore.Authorization;
@@ -13,9 +14,12 @@ namespace Marina.UI.Controllers;
 public class ImportController : Controller
 {
     private readonly IImportRepository _ImportRepository;
-    public ImportController(IImportRepository importRepository)
+    private readonly IUserRepository _userRepository;
+
+    public ImportController(IImportRepository importRepository, IUserRepository userRepository)
     {
         _ImportRepository = importRepository;
+        _userRepository = userRepository;
     }
 
     public IActionResult Index()
@@ -46,7 +50,8 @@ public class ImportController : Controller
 
                     DataTable dt = CreateDataTable(reader);
 
-                    await _ImportRepository.SaveToDatabase(dt);
+                    if (await _ImportRepository.SaveToDatabase(dt))
+                        await _userRepository.HasImported(GetUserId());
 
                     return View(dt);
                 }
@@ -70,7 +75,7 @@ public class ImportController : Controller
         DataRow row;
         DataTable dt_ = new();
         var Date = Helper.GetPersianDate();
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        string? userId = GetUserId().ToString();
 
         try
         {
@@ -101,5 +106,10 @@ public class ImportController : Controller
         reader.Close();
         reader.Dispose();
         return dt;
+    }
+
+    private int GetUserId()
+    {
+        return Convert.ToInt32(User.FindFirstValue(ClaimTypes.NameIdentifier));
     }
 }

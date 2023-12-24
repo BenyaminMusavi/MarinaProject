@@ -31,7 +31,7 @@ public partial class MarinaDbContext : DbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Name).HasMaxLength(50);
 
-            entity.HasData(new Supervisor { Id = 1, Name = "Mohammadian" }, new Supervisor { Id = 2, Name = "Mousavi" });
+            entity.HasData(new Supervisor { Id = 1, Name = "Mohammadian", Email = "beni97d@gmail.com" }, new Supervisor { Id = 2, Name = "Mousavi", Email = "beni97d@gmail.com" });
         });
 
         modelBuilder.Entity<Province>(entity =>
