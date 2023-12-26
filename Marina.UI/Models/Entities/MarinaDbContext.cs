@@ -19,12 +19,20 @@ public partial class MarinaDbContext : DbContext
     public DbSet<Line> Lines { get; set; }
     public DbSet<Province> Provinces { get; set; }
     public DbSet<Supervisor> Supervisors { get; set; }
+    public DbSet<NotImportedData> NotImportedDatas { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { }
     //=> optionsBuilder.UseSqlServer("Data Source=.;Initial Catalog=MarinaDb;integrated security=true;TrustServerCertificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<NotImportedData>(entity =>
+        {
+            entity.ToTable("NotImportedData");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.DateTime).HasColumnType("datetime2").HasDefaultValue(DateTime.Now);
+        });
+
         modelBuilder.Entity<Supervisor>(entity =>
         {
             entity.ToTable("Supervisor");

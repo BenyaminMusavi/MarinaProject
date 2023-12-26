@@ -4,6 +4,7 @@ using Marina.UI.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Marina.UI.Migrations
 {
     [DbContext(typeof(MarinaDbContext))]
-    partial class MarinaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231224120716_notImported")]
+    partial class notImported
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -85,33 +88,6 @@ namespace Marina.UI.Migrations
                             Id = 2,
                             Name = "Sunnyness"
                         });
-                });
-
-            modelBuilder.Entity("Marina.UI.Models.Entities.NotImportedData", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("DateTime")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2023, 12, 24, 15, 39, 47, 172, DateTimeKind.Local).AddTicks(2499));
-
-                    b.Property<string>("PersonName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("SupervisorId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SupervisorId");
-
-                    b.ToTable("NotImportedData", (string)null);
                 });
 
             modelBuilder.Entity("Marina.UI.Models.Entities.Province", b =>
@@ -261,7 +237,7 @@ namespace Marina.UI.Migrations
                     b.Property<DateTime>("CreateDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2023, 12, 24, 15, 39, 47, 172, DateTimeKind.Local).AddTicks(7083));
+                        .HasDefaultValue(new DateTime(2023, 12, 24, 15, 37, 16, 576, DateTimeKind.Local).AddTicks(2921));
 
                     b.Property<string>("DName")
                         .IsRequired()
@@ -343,7 +319,7 @@ namespace Marina.UI.Migrations
                         new
                         {
                             Id = 1,
-                            CreateDate = new DateTime(2023, 12, 24, 15, 39, 47, 172, DateTimeKind.Local).AddTicks(7594),
+                            CreateDate = new DateTime(2023, 12, 24, 15, 37, 16, 576, DateTimeKind.Local).AddTicks(3449),
                             DName = "admin",
                             DistributorId = 1,
                             HasImported = false,
@@ -374,17 +350,6 @@ namespace Marina.UI.Migrations
                     b.HasIndex("UsersId");
 
                     b.ToTable("SupervisorUser");
-                });
-
-            modelBuilder.Entity("Marina.UI.Models.Entities.NotImportedData", b =>
-                {
-                    b.HasOne("Marina.UI.Models.Entities.Supervisor", "Supervisor")
-                        .WithMany()
-                        .HasForeignKey("SupervisorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Supervisor");
                 });
 
             modelBuilder.Entity("Marina.UI.Models.Entities.User", b =>

@@ -4,7 +4,6 @@ using Marina.UI.Providers;
 using Marina.UI.Providers.Repositories;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
-using Quartz;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
@@ -21,6 +20,7 @@ builder.Services.AddScoped<IRegionRepository, RegionRepository>();
 builder.Services.AddScoped<IRSMRepository, RSMRepository>();
 builder.Services.AddScoped<IImportRepository, ImportRepository>();
 builder.Services.AddScoped<ISupervisorRepository, SupervisorRepository>();
+//builder.Services.AddTransient<JobStatusService>();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthentication(options =>
@@ -49,24 +49,7 @@ builder.Services.AddAuthorization(options =>
     });
 });
 
-builder.Services.AddQuartz(c =>
-{
-    c.UseMicrosoftDependencyInjectionJobFactory();
-
-    var jobKey = new JobKey("Send Email For Supervisor");
-    c.AddJob<SendEmailForSupervisorsJob>(j=>j.WithIdentity(jobKey));
-
-    c.AddTrigger(t => t.ForJob(jobKey)
-        .WithIdentity("Send Email For Supervisor Trigger")
-        .WithSchedule(CronScheduleBuilder.DailyAtHourAndMinute(13, 45)));
-
-});
-
-builder.Services.AddQuartzHostedService(c =>
-{
-    c.WaitForJobsToComplete = true;
-});
-
+QuartzExtension.AddQuartz(builder);
 
 builder.Services.AddControllersWithViews();
 var app = builder.Build();

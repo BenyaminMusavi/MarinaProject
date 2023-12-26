@@ -79,3 +79,20 @@ public partial class Supervisor
     public virtual IList<User> Users { get; set; }
 
 }
+
+public partial class NotImportedData
+{
+    public NotImportedData(int supervisorId, string personName)
+    {
+        SupervisorId = supervisorId;
+        PersonName = personName;
+    }
+
+    [Key]
+    public int Id { get; set; }
+    public int SupervisorId { get; set; }
+    public string PersonName { get; set; } = null!;
+    public DateTime DateTime { get; set; }
+    public virtual Supervisor Supervisor { get; set; }
+
+}
