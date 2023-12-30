@@ -49,7 +49,7 @@ builder.Services.AddAuthorization(options =>
     });
 });
 
-QuartzExtension.AddQuartz(builder);
+//QuartzExtension.AddQuartz(builder);
 
 builder.Services.AddControllersWithViews();
 var app = builder.Build();

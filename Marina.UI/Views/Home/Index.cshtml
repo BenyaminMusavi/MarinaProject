@@ -10,22 +10,27 @@
         <table>
             <thead>
                 <tr>
-                    @foreach (DataColumn column in Model[0].Table.Columns)
+                    <th>#</th>
+                    @foreach (var column in Model[0].Table.Columns.Cast<DataColumn>().Skip(3))
                     {
                         <th>@column.ColumnName</th>
                     }
                 </tr>
             </thead>
             <tbody>
-
-                @foreach (DataRow row in Model)
-                {
-                    <tr>
-                        @foreach (DataColumn column in row.Table.Columns)
-                        {
-                            <td>@row[column.ColumnName]</td>
-                        }
-                    </tr>
+                @{
+                    int rowNumber = 1;
+                    foreach (DataRow row in Model)
+                    {
+                        <tr>
+                            <td>@rowNumber</td>
+                            @foreach (DataColumn column in row.Table.Columns.Cast<DataColumn>().Skip(3))
+                            {
+                                <td>@row[column.ColumnName]</td>
+                            }
+                        </tr>
+                        rowNumber++;
+                    }
                 }
 
             </tbody>
@@ -33,18 +38,24 @@
     </div>
 
     <br />
-    @Html.PagedListPager((IPagedList)Model,page=>Url.Action("Index",new {page=page}),
-new X.PagedList.Mvc.Common.PagedListRenderOptions{
+
+    <div class="pagination">
+
+        @Html.PagedListPager((IPagedList)Model,page=>Url.Action("Index",new {page=page}),
+    new X.PagedList.Mvc.Common.PagedListRenderOptions{
     DisplayItemSliceAndTotal = true,
     ContainerDivClasses = new[] {"navigation"},
     LiElementClasses = new[] {"page-item"},
     PageClasses = new[] {"page-link"},
-})
+    })
+
+    </div>
 
     <br />
     <br />
     <br />
 }
+
 
 <script>
 
@@ -63,7 +74,7 @@ new X.PagedList.Mvc.Common.PagedListRenderOptions{
         <ul>
             @if (Model.HasPreviousPage)
             {
-                <li><a href="@Url.Action("Index", new { page = Model.PageNumber - 1 })">Previous</a></li>
+                <li><a href="@Url.Action("Index", new { page = Model.PageNumber - 1 })  ">Previous</a></li>
             }
             @for (int i = 1; i <= Model.PageCount; i++)
             {

@@ -37,45 +37,8 @@ public static class Helper
         return tblName;
     }
 
-    public static bool ColumnMapping(DataTable dataTable, SqlBulkCopy bulkCopy, List<string> destinationColumnNames)
-    {
-        try
-        {
-            //foreach (var column in dataTable.Columns)
-            //{
-            //    var sourceColumn = column.ToString();
-            //    var destinationColumn = column.ToString().Replace(" ", "");
-            //    bulkCopy.ColumnMappings.Add(sourceColumn, destinationColumn);
-            //}
-            foreach (DataColumn column in dataTable.Columns)
-            {
-                var sourceColumn = column.ColumnName.Replace(" ", "");
-                var isValid = destinationColumnNames.Contains(sourceColumn);
-                if (isValid)
-                    bulkCopy.ColumnMappings.Add(sourceColumn, sourceColumn);
-                else
-                    return false;
-            }
-            return true;
-        }
-        catch (Exception ex)
-        {
-            throw new Exception("Error mapping columns: " + ex.Message);
-        }
-    }
 
-    public static string CreateData(DataTable dataTable, string databaseName, string tblName)
-    {
-        var query = $"USE [{databaseName}]; CREATE TABLE DBO.[{tblName}] (Id INT IDENTITY(1, 1), ";
-        foreach (var item in dataTable.Columns)
-        {
-            string? column = item.ToString().Replace(" ", "");
-            query += $"{column} nvarchar(100) NULL,";
-        }
-        query = query.Substring(0, query.Length - 1);
-        query += ");";
-        return query;
-    }
+
 
     public static void EnsureDatabaseMigrated(this IApplicationBuilder app)
     {

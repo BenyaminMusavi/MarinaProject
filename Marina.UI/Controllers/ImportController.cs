@@ -51,9 +51,13 @@ public class ImportController : Controller
                     DataTable dt = CreateDataTable(reader);
 
                     if (await _ImportRepository.SaveToDatabase(dt))
+                    {
                         await _userRepository.HasImported(GetUserId());
 
-                    return View(dt);
+                        return View(dt);
+                    }
+                    ModelState.AddModelError("File", "This file format is not supported");
+
                 }
                 else
                 {
@@ -72,23 +76,32 @@ public class ImportController : Controller
     private DataTable CreateDataTable(IExcelDataReader reader)
     {
         DataTable dt = new();
-        DataRow row;
-        DataTable dt_ = new();
-        var Date = Helper.GetPersianDate();
-        string? userId = GetUserId().ToString();
+        dt.Columns.Add("UserId");
+        dt.Columns.Add("PerDate");
+        AddColumnsFromExcel(dt, reader);
+        AddRowsFromExcel(dt, reader);
+        return dt;
+    }
 
-        try
+    private void AddColumnsFromExcel(DataTable dt, IExcelDataReader reader)
+    {
+        DataTable dt_ = reader.AsDataSet().Tables[0];
+        for (int i = 0; i < dt_.Columns.Count; i++)
         {
-            dt_ = reader.AsDataSet().Tables[0];
-            dt.Columns.Add("UserId");
-            dt.Columns.Add("PerDate");
-            for (int i = 0; i < dt_.Columns.Count; i++)
+            dt.Columns.Add(dt_.Rows[0][i].ToString());
+        }
+    }
+
+    private void AddRowsFromExcel(DataTable dt, IExcelDataReader reader)
+    {
+        using (reader)
+        {
+            DataTable dt_ = reader.AsDataSet().Tables[0];
+            var Date = Helper.GetPersianDate();
+            string? userId = GetUserId().ToString();
+            for (int row_ = 1; row_ < dt_.Rows.Count; row_++)
             {
-                dt.Columns.Add(dt_.Rows[0][i].ToString());
-            }
-            for (int row_ = 0; row_ < dt_.Rows.Count; row_++)
-            {
-                row = dt.NewRow();
+                DataRow row = dt.NewRow();
                 row["UserId"] = userId;
                 row["PerDate"] = Date;
 
@@ -99,14 +112,45 @@ public class ImportController : Controller
                 dt.Rows.Add(row);
             }
         }
-        catch (Exception)
-        {
-            ModelState.AddModelError("File", "Unable to upload file!");
-        }
-        reader.Close();
-        reader.Dispose();
-        return dt;
     }
+    //private DataTable CreateDataTable(IExcelDataReader reader)
+    //{
+    //    DataTable dt = new();
+    //    DataRow row;
+    //    DataTable dt_ = new();
+    //    var Date = Helper.GetPersianDate();
+    //    string? userId = GetUserId().ToString();
+
+    //    try
+    //    {
+    //        dt_ = reader.AsDataSet().Tables[0];
+    //        dt.Columns.Add("UserId");
+    //        dt.Columns.Add("PerDate");
+    //        for (int i = 0; i < dt_.Columns.Count; i++)
+    //        {
+    //            dt.Columns.Add(dt_.Rows[0][i].ToString());
+    //        }
+    //        for (int row_ = 0; row_ < dt_.Rows.Count; row_++)
+    //        {
+    //            row = dt.NewRow();
+    //            row["UserId"] = userId;
+    //            row["PerDate"] = Date;
+
+    //            for (int col = 0; col < dt_.Columns.Count; col++)
+    //            {
+    //                row[col + 2] = dt_.Rows[row_][col].ToString();
+    //            }
+    //            dt.Rows.Add(row);
+    //        }
+    //    }
+    //    catch (Exception)
+    //    {
+    //        ModelState.AddModelError("File", "Unable to upload file!");
+    //    }
+    //    reader.Close();
+    //    reader.Dispose();
+    //    return dt;
+    //}
 
     private int GetUserId()
     {

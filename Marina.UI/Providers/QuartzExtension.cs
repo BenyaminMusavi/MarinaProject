@@ -29,7 +29,7 @@ public static class QuartzExtension
             .StartAt(DateBuilder.FutureDate(2, IntervalUnit.Minute)));
 
 
-            c.AddJobListener<JobChainingListener>();
+            //c.AddJobListener<JobChainingListener>();
             //c.AddJobListener<JobChainingListener>(GroupMatcher<JobKey>.AnyGroup());
         });
 
