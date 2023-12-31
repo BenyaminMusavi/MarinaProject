@@ -20,6 +20,7 @@ builder.Services.AddScoped<IRegionRepository, RegionRepository>();
 builder.Services.AddScoped<IRSMRepository, RSMRepository>();
 builder.Services.AddScoped<IImportRepository, ImportRepository>();
 builder.Services.AddScoped<ISupervisorRepository, SupervisorRepository>();
+builder.Services.AddScoped<INSMRepository, NSMRepository>();
 //builder.Services.AddTransient<JobStatusService>();
 
 builder.Services.AddHttpContextAccessor();

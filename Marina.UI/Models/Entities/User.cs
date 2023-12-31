@@ -13,6 +13,7 @@ public partial class User
     public int DistributorId { get; set; }
     public int LineId { get; set; }
     public int ProvinceId { get; set; }
+    public int NsmId { get; set; }
     public int SupervisorId { get; set; }
     public string PhoneNumber { get; set; }
     public string PasswordHash { get; set; } = null!;
@@ -33,6 +34,7 @@ public partial class User
     public virtual IList<Supervisor> Supervisor { get; set; }
     public virtual Region Region { get; set; }
     public virtual RSM RSM { get; set; }
+    public virtual NSM NSM { get; set; }
 }
 
 public partial class Region
@@ -95,4 +97,11 @@ public partial class NotImportedData
     public DateTime DateTime { get; set; }
     public virtual Supervisor Supervisor { get; set; }
 
+}
+
+public partial class NSM
+{
+    [Key]
+    public int Id { get; set; }
+    public string Name { get; set; }
 }

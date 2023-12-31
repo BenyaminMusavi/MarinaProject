@@ -87,6 +87,36 @@ namespace Marina.UI.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Marina.UI.Models.Entities.NSM", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("NSM", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Farshid"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Ahmad"
+                        });
+                });
+
             modelBuilder.Entity("Marina.UI.Models.Entities.NotImportedData", b =>
                 {
                     b.Property<int>("Id")
@@ -98,7 +128,7 @@ namespace Marina.UI.Migrations
                     b.Property<DateTime>("DateTime")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2023, 12, 24, 15, 39, 47, 172, DateTimeKind.Local).AddTicks(2499));
+                        .HasDefaultValue(new DateTime(2023, 12, 30, 19, 26, 12, 789, DateTimeKind.Local).AddTicks(5619));
 
                     b.Property<string>("PersonName")
                         .IsRequired()
@@ -261,7 +291,7 @@ namespace Marina.UI.Migrations
                     b.Property<DateTime>("CreateDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2023, 12, 24, 15, 39, 47, 172, DateTimeKind.Local).AddTicks(7083));
+                        .HasDefaultValue(new DateTime(2023, 12, 30, 19, 26, 12, 790, DateTimeKind.Local).AddTicks(1673));
 
                     b.Property<string>("DName")
                         .IsRequired()
@@ -285,6 +315,9 @@ namespace Marina.UI.Migrations
                         .HasDefaultValue(false);
 
                     b.Property<int>("LineId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("NsmId")
                         .HasColumnType("int");
 
                     b.Property<string>("PasswordHash")
@@ -331,6 +364,8 @@ namespace Marina.UI.Migrations
 
                     b.HasIndex("LineId");
 
+                    b.HasIndex("NsmId");
+
                     b.HasIndex("ProvinceId");
 
                     b.HasIndex("RSMId");
@@ -343,13 +378,14 @@ namespace Marina.UI.Migrations
                         new
                         {
                             Id = 1,
-                            CreateDate = new DateTime(2023, 12, 24, 15, 39, 47, 172, DateTimeKind.Local).AddTicks(7594),
+                            CreateDate = new DateTime(2023, 12, 30, 19, 26, 12, 790, DateTimeKind.Local).AddTicks(2180),
                             DName = "admin",
                             DistributorId = 1,
                             HasImported = false,
                             IsActive = true,
                             IsDeleted = false,
                             LineId = 1,
+                            NsmId = 1,
                             PasswordHash = "Gco+uHGl5M4H2AXm7UqdfBz/VrFZrLUQiXy9tU9f9d8=",
                             PhoneNumber = "0901",
                             ProvinceId = 1,
@@ -401,6 +437,12 @@ namespace Marina.UI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Marina.UI.Models.Entities.NSM", "NSM")
+                        .WithMany()
+                        .HasForeignKey("NsmId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Marina.UI.Models.Entities.Province", "Province")
                         .WithMany()
                         .HasForeignKey("ProvinceId")
@@ -422,6 +464,8 @@ namespace Marina.UI.Migrations
                     b.Navigation("Distributor");
 
                     b.Navigation("Line");
+
+                    b.Navigation("NSM");
 
                     b.Navigation("Province");
 

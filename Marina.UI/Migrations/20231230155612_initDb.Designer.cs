@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Marina.UI.Migrations
 {
     [DbContext(typeof(MarinaDbContext))]
-    [Migration("20231215211212_initDb")]
+    [Migration("20231230155612_initDb")]
     partial class initDb
     {
         /// <inheritdoc />
@@ -88,6 +88,63 @@ namespace Marina.UI.Migrations
                             Id = 2,
                             Name = "Sunnyness"
                         });
+                });
+
+            modelBuilder.Entity("Marina.UI.Models.Entities.NSM", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("NSM", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Farshid"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Ahmad"
+                        });
+                });
+
+            modelBuilder.Entity("Marina.UI.Models.Entities.NotImportedData", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("DateTime")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValue(new DateTime(2023, 12, 30, 19, 26, 12, 789, DateTimeKind.Local).AddTicks(5619));
+
+                    b.Property<string>("PersonName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SupervisorId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SupervisorId");
+
+                    b.ToTable("NotImportedData", (string)null);
                 });
 
             modelBuilder.Entity("Marina.UI.Models.Entities.Province", b =>
@@ -198,6 +255,10 @@ namespace Marina.UI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -211,11 +272,13 @@ namespace Marina.UI.Migrations
                         new
                         {
                             Id = 1,
+                            Email = "beni97d@gmail.com",
                             Name = "Mohammadian"
                         },
                         new
                         {
                             Id = 2,
+                            Email = "beni97d@gmail.com",
                             Name = "Mousavi"
                         });
                 });
@@ -231,7 +294,7 @@ namespace Marina.UI.Migrations
                     b.Property<DateTime>("CreateDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2023, 12, 16, 0, 42, 11, 972, DateTimeKind.Local).AddTicks(2472));
+                        .HasDefaultValue(new DateTime(2023, 12, 30, 19, 26, 12, 790, DateTimeKind.Local).AddTicks(1673));
 
                     b.Property<string>("DName")
                         .IsRequired()
@@ -240,6 +303,9 @@ namespace Marina.UI.Migrations
 
                     b.Property<int>("DistributorId")
                         .HasColumnType("int");
+
+                    b.Property<bool>("HasImported")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
@@ -252,6 +318,9 @@ namespace Marina.UI.Migrations
                         .HasDefaultValue(false);
 
                     b.Property<int>("LineId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("NsmId")
                         .HasColumnType("int");
 
                     b.Property<string>("PasswordHash")
@@ -298,13 +367,13 @@ namespace Marina.UI.Migrations
 
                     b.HasIndex("LineId");
 
+                    b.HasIndex("NsmId");
+
                     b.HasIndex("ProvinceId");
 
                     b.HasIndex("RSMId");
 
                     b.HasIndex("RegionId");
-
-                    b.HasIndex("SupervisorId");
 
                     b.ToTable("User", (string)null);
 
@@ -312,12 +381,14 @@ namespace Marina.UI.Migrations
                         new
                         {
                             Id = 1,
-                            CreateDate = new DateTime(2023, 12, 16, 0, 42, 11, 972, DateTimeKind.Local).AddTicks(3193),
+                            CreateDate = new DateTime(2023, 12, 30, 19, 26, 12, 790, DateTimeKind.Local).AddTicks(2180),
                             DName = "admin",
                             DistributorId = 1,
+                            HasImported = false,
                             IsActive = true,
                             IsDeleted = false,
                             LineId = 1,
+                            NsmId = 1,
                             PasswordHash = "Gco+uHGl5M4H2AXm7UqdfBz/VrFZrLUQiXy9tU9f9d8=",
                             PhoneNumber = "0901",
                             ProvinceId = 1,
@@ -327,6 +398,32 @@ namespace Marina.UI.Migrations
                             SupervisorId = 1,
                             UserName = "admin"
                         });
+                });
+
+            modelBuilder.Entity("SupervisorUser", b =>
+                {
+                    b.Property<int>("SupervisorId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UsersId")
+                        .HasColumnType("int");
+
+                    b.HasKey("SupervisorId", "UsersId");
+
+                    b.HasIndex("UsersId");
+
+                    b.ToTable("SupervisorUser");
+                });
+
+            modelBuilder.Entity("Marina.UI.Models.Entities.NotImportedData", b =>
+                {
+                    b.HasOne("Marina.UI.Models.Entities.Supervisor", "Supervisor")
+                        .WithMany()
+                        .HasForeignKey("SupervisorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Supervisor");
                 });
 
             modelBuilder.Entity("Marina.UI.Models.Entities.User", b =>
@@ -340,6 +437,12 @@ namespace Marina.UI.Migrations
                     b.HasOne("Marina.UI.Models.Entities.Line", "Line")
                         .WithMany()
                         .HasForeignKey("LineId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Marina.UI.Models.Entities.NSM", "NSM")
+                        .WithMany()
+                        .HasForeignKey("NsmId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -361,23 +464,32 @@ namespace Marina.UI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Marina.UI.Models.Entities.Supervisor", "Supervisor")
-                        .WithMany()
-                        .HasForeignKey("SupervisorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Distributor");
 
                     b.Navigation("Line");
+
+                    b.Navigation("NSM");
 
                     b.Navigation("Province");
 
                     b.Navigation("RSM");
 
                     b.Navigation("Region");
+                });
 
-                    b.Navigation("Supervisor");
+            modelBuilder.Entity("SupervisorUser", b =>
+                {
+                    b.HasOne("Marina.UI.Models.Entities.Supervisor", null)
+                        .WithMany()
+                        .HasForeignKey("SupervisorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Marina.UI.Models.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("UsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

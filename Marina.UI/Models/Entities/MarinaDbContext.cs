@@ -20,12 +20,22 @@ public partial class MarinaDbContext : DbContext
     public DbSet<Province> Provinces { get; set; }
     public DbSet<Supervisor> Supervisors { get; set; }
     public DbSet<NotImportedData> NotImportedDatas { get; set; }
+    public DbSet<NSM> NSMs { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { }
     //=> optionsBuilder.UseSqlServer("Data Source=.;Initial Catalog=MarinaDb;integrated security=true;TrustServerCertificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<NSM>(entity =>
+        {
+            entity.ToTable("NSM");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).HasMaxLength(100);
+
+            entity.HasData(new Line { Id = 1, Name = "Farshid" }, new Line { Id = 2, Name = "Ahmad" });
+        });
+
         modelBuilder.Entity<NotImportedData>(entity =>
         {
             entity.ToTable("NotImportedData");
@@ -119,6 +129,7 @@ public partial class MarinaDbContext : DbContext
                 IsDeleted = false,
                 IsActive = true,
                 CreateDate = DateTime.Now,
+                NsmId = 1
             });
 
         });

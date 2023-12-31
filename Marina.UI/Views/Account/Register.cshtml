@@ -45,6 +45,14 @@
                 </div>
 
                 <div class="form-outline mb-4">
+                    <label for="nsm" class="form-label">NSM</label>
+                    @Html.DropDownListFor(model => model.NsmId,ViewBag.NsmList as SelectList ,"select a nsm", new {style="height:40px;" ,@class = "form-control", id="nsmId" })
+                    <div class="invalid-feedback">
+                        Please enter a valid nsm.
+                    </div>
+
+                </div>
+                <div class="form-outline mb-4">
                     <label for="username" class="form-label">Username</label>
                     <input type="text" class="form-control" id="username" name="username" required>
                     <div class="invalid-feedback">

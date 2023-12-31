@@ -19,10 +19,11 @@ public class AccountController : Controller
     private readonly ILineRepository _lineRepository;
     private readonly IProvinceRepository _provinceRepository;
     private readonly ISupervisorRepository _supervisorRepository;
+    private readonly INSMRepository _nSMRepository;
     public AccountController(IUserManager userManager, IUserRepository userRepository,
         IRegionRepository regionRepository, IRSMRepository rsmRepository,
         IDistributorRepository distributorRepository,
-        ILineRepository lineRepository, IProvinceRepository provinceRepository, ISupervisorRepository supervisorRepository)
+        ILineRepository lineRepository, IProvinceRepository provinceRepository, ISupervisorRepository supervisorRepository, INSMRepository nSMRepository)
     {
         _userManager = userManager;
         _userRepository = userRepository;
@@ -32,6 +33,7 @@ public class AccountController : Controller
         _lineRepository = lineRepository;
         _provinceRepository = provinceRepository;
         _supervisorRepository = supervisorRepository;
+        _nSMRepository = nSMRepository;
     }
 
     [Authorize(Roles = "admin")]
@@ -128,6 +130,9 @@ public class AccountController : Controller
         var supervisor = await _supervisorRepository.GetAll();
         ViewBag.SupervisorList = new SelectList(supervisor, "Id", "Name");
 
+        var nsmss = await _nSMRepository.GetAll();
+        ViewBag.NsmList = new SelectList(nsmss, "Id", "Name");
+
         return View();
     }
 
@@ -165,6 +170,9 @@ public class AccountController : Controller
 
             var supervisor = await _supervisorRepository.GetAll();
             ViewBag.SupervisorList = new SelectList(supervisor, "Id", "Name");
+
+            var nsmss = await _nSMRepository.GetAll();
+            ViewBag.NsmList = new SelectList(nsmss, "Id", "Name");
 
             return View();
         }
