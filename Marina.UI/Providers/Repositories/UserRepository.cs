@@ -3,8 +3,10 @@ using Marina.UI.Models.Entities;
 using Marina.UI.Models.ViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace Marina.UI.Providers.Repositories;
 
@@ -71,6 +73,11 @@ public class UserRepository : IUserRepository
         //    return false;
         //if (!currentUser.IsActive)
         //    return false;
+        var userNameTable = CalculateUserNameTable(model.DistributorId, model.ProvinceId, model.LineId);
+        var hasTable = await Helper.TableExists(userNameTable);
+        if (hasTable)
+            return false;
+
         var userRecords = await _db.Users.Where(x => x.UserName == model.UserName.Trim()).FirstOrDefaultAsync();
 
         if (userRecords is not null)
@@ -105,7 +112,7 @@ public class UserRepository : IUserRepository
             RegionId = userRegistration.RegionId,
             PasswordHash = hashedPassword,
             Salt = salt,
-            UserName = userRegistration.UserName,
+            UserName = userRegistration.UserName.Trim(),
             RSMId = userRegistration.RSMId,
             LineId = userRegistration.LineId,
             ProvinceId = userRegistration.ProvinceId,
@@ -165,4 +172,17 @@ public class UserRepository : IUserRepository
         model.HasImported = true;
         await _db.SaveChangesAsync();
     }
+
+    private string CalculateUserNameTable(int distributorCode, int provinceId, int lineId)
+    {
+        var distributor = _db.Distributors.FirstOrDefault(x => x.Id == distributorCode);
+        var distributorName = distributor?.Code;
+        var province = _db.Provinces.FirstOrDefault(x => x.Id == provinceId);
+        var provinceName = province?.Name;
+        var line = _db.Lines.FirstOrDefault(x => x.Id == lineId);
+        var lineName = line?.Name;
+        var userNameTable = $"{distributorName}_{provinceName}_{lineName}";
+        return userNameTable;
+    }
+
 }

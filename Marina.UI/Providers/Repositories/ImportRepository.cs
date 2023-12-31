@@ -8,7 +8,6 @@ namespace Marina.UI.Providers.Repositories;
 
 public interface IImportRepository
 {
-    Task<bool> TableExists(string tableName);
     Task<bool> SaveToDatabase(DataTable dt);
     Task<DataTable> GetAll();
 }
@@ -26,17 +25,7 @@ public class ImportRepository : IImportRepository
         databaseName = configuration.GetValue<string>("Database:Name");
     }
 
-    public async Task<bool> TableExists(string tableName)
-    {
-        using SqlConnection connection = new(connectionString);
-        connection.Open();
-
-        var query = $"SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{tableName}'";
-        SqlCommand command = new(query, connection);
-        var result = await command.ExecuteScalarAsync();
-
-        return result != null;
-    }
+  
 
     //public async Task<bool> SaveToDatabase(DataTable dataTable)
     //{
@@ -87,7 +76,7 @@ public class ImportRepository : IImportRepository
     {
         using (SqlConnection con = new(connectionString))
         {
-            var tableExists = await TableExists(tableName);
+            var tableExists = await Helper.TableExists(tableName);
             using (SqlBulkCopy bulkCopy = new(con))
             {
                 try
@@ -129,7 +118,7 @@ public class ImportRepository : IImportRepository
     }
     public async Task<DataTable> GetAll()
     {
-        var tableExists = await TableExists(tableName);
+        var tableExists = await Helper.TableExists(tableName);
         DataTable dataTable = new();
         if (tableExists)
         {
@@ -217,7 +206,7 @@ public class ImportRepository : IImportRepository
     {
         using (SqlConnection connection = new SqlConnection(connectionString))
         {
-            var tableExists = await TableExists(tableName);
+            var tableExists = await Helper.TableExists(tableName);
 
             using (SqlBulkCopy bulkCopy = new(connection))
             {

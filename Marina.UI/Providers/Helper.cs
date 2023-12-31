@@ -52,4 +52,16 @@ public static class Helper
         }
     }
 
+    public static async Task<bool> TableExists(string tableName)
+    {
+        using SqlConnection connection = new(GetConnectionString());
+        connection.Open();
+
+        var query = $"SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{tableName}'";
+        SqlCommand command = new(query, connection);
+        var result = await command.ExecuteScalarAsync();
+
+        return result != null;
+
+    }
 }
