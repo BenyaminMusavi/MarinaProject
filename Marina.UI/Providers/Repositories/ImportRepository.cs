@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Identity.Client;
 using System.Data;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Marina.UI.Providers.Repositories;
 
@@ -25,7 +26,7 @@ public class ImportRepository : IImportRepository
         databaseName = configuration.GetValue<string>("Database:Name");
     }
 
-  
+
 
     //public async Task<bool> SaveToDatabase(DataTable dataTable)
     //{
@@ -145,7 +146,8 @@ public class ImportRepository : IImportRepository
             //}
             foreach (DataColumn column in dataTable.Columns)
             {
-                var sourceColumn = column.ColumnName.Replace(" ", "");
+                string sourceColumn = column.ColumnName;
+
                 var isValid = destinationColumnNames.Contains(sourceColumn);
                 if (isValid)
                     bulkCopy.ColumnMappings.Add(sourceColumn, sourceColumn);
@@ -175,12 +177,12 @@ public class ImportRepository : IImportRepository
     private static string CreateQueryTable(DataTable dataTable, string databaseName, string tableName)
     {
         var queryBuilder = new StringBuilder();
+
         queryBuilder.Append($"USE [{databaseName}]; CREATE TABLE DBO.[{tableName}] (Id INT IDENTITY(1, 1), ");
 
         foreach (DataColumn column in dataTable.Columns)
         {
-            string columnName = column.ColumnName.Replace(" ", "");
-            queryBuilder.Append($"{columnName} nvarchar(100) NULL,");
+            queryBuilder.Append($"[{column.ColumnName}] nvarchar(MAX) NULL,");
         }
 
         queryBuilder.Remove(queryBuilder.Length - 1, 1);
@@ -188,7 +190,13 @@ public class ImportRepository : IImportRepository
 
         return queryBuilder.ToString();
     }
-
+    //static string ValidateColumnName(string columnName)
+    //{        // الگوی اعتبارسنجی: حروف انگلیسی و حروف فارسی و کاراکتر underscore
+    //     string pattern = "[a-zA-Zآ-ی_]+";
+    //    // استفاده از عبارت منظم برای اعتبارسنجی و تبدیل کاراکترهای اضافی به underscore
+    //    string validatedColumnName = Regex.Replace(column.ColumnName, $"[^{pattern}]", "_");
+    //    return validatedColumnName;
+    //}
     //public static string CreateQueryTable(DataTable dataTable, string databaseName, string tblName)
     //{
     //    var query = $"USE [{databaseName}]; CREATE TABLE DBO.[{tblName}] (Id INT IDENTITY(1, 1), ";

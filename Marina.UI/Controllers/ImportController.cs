@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using System.Security.Claims;
 using System.Text;
+using System.Text.RegularExpressions;
 using ExcelDataReader;
 using Marina.UI.Models.Entities;
 using Marina.UI.Providers;
@@ -88,8 +89,18 @@ public class ImportController : Controller
         DataTable dt_ = reader.AsDataSet().Tables[0];
         for (int i = 0; i < dt_.Columns.Count; i++)
         {
-            dt.Columns.Add(dt_.Rows[0][i].ToString());
+            var c = dt_.Rows[0][i].ToString();
+            var updateColumn = Regex.Replace(c, @"[^a-zA-Z\u0600-\u06FF]+", "_");
+
+            //dt.Columns.Add(dt_.Rows[0][i].ToString());
+            dt.Columns.Add(updateColumn);
         }
+
+        //var column = dt_.Rows[row_][col].ToString();
+        //var updateColumn = Regex.Replace(column, @"[^a-zA-Z\u0600-\u06FF]+", "_");
+        ////row[col + 2] = dt_.Rows[row_][col].ToString();
+        //row[col + 2] = updateColumn;
+
     }
 
     private void AddRowsFromExcel(DataTable dt, IExcelDataReader reader)
